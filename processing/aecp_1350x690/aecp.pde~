@@ -1,0 +1,133 @@
+// Need G4P library
+import g4p_controls.*;
+// On importe la librairie qui permet de communiquer en série
+import processing.serial.*;
+
+Serial myPort; // On créé une instance de la classe Serial
+short LF = 10; // "Fin de ligne"
+
+char HEADERSPEED = 'V'; // C'est le caractère que l'on a inséré avant la valeur de vitesse
+char HEADERPRESSION = 'P'; // C'est le caractère que l'on a inséré avant la valeur de pression
+char HEADERDELAY = 'D'; // C'est le caractère que l'on a inséré avant la valeur du délai
+int speedValue; // Une variable pour stocker la valeur de vitesse
+int pressionValue; // Une variable pour stocker la valeur de pression
+int delayValue; // Une variable pour stocker la valeur du délai
+int usPerDegree;
+int delayDegree;
+int delayAvanceDegree;
+int delaySpark;
+
+PImage img;
+PFont f;
+
+public void setup(){
+  size(1400, 720, JAVA2D);
+  createGUI();
+  customGUI();
+  // Place your setup code here
+  smooth();
+  // A vous de trouver quel port série est utilisé à l'aide de print(Serial.list())
+ String portName = Serial.list()[0];
+ // On initialise la communication série, à la même vitesse qu'Arduino
+ myPort = new Serial(this, portName, 115200);
+ 
+ // Make a new instance of a PImage by loading an image file
+  img = loadImage("panhard242.png");                // Using a String for a file name
+ // Loading a font for displaying text 
+  f = loadFont("Courier-Bold-22.vlw"); 
+  
+}
+
+// Un message est reçu depuis l'Arduino
+void serialEvent(Serial p) {
+ String message = myPort.readStringUntil(LF); // On lit le message reçu, jusqu'au saut de ligne
+ if (message != null)
+ {
+ print("Message" + message);
+ // On découpe le message à chaque virgule, on le stocke dans un tableau
+ String [] data = message.split(",");
+
+//Message reçu pour la vitesse
+ if (data[0].charAt(0) == HEADERSPEED)
+ {
+ // On convertit la valeur (String -> Int)
+ int speedRaw = Integer.parseInt(data[1]);
+ speedValue = speedRaw*2;
+ knob1.setValue(speedValue);
+ textfield1.setText(str(speedValue));
+ 
+ }
+
+//Message reçu pour la depression
+ else if (data[0].charAt(0) == HEADERPRESSION)
+ {
+ // On convertit la valeur (String -> Int)
+ int pressionRaw = Integer.parseInt(data[1]);
+ // On convertit la valeur (String -> Int)
+ pressionValue = pressionRaw;
+ knob2.setValue(pressionValue);
+ textfield2.setText(str(pressionValue));
+ }
+ 
+ //Message reçu pour le délai
+ else if (data[0].charAt(0) == HEADERDELAY)
+ {
+ // On convertit la valeur (String -> Int)
+ int delayRaw = Integer.parseInt(data[1]);
+ // On convertit la valeur (String -> Int)
+ delayValue = delayRaw;
+ textfield3.setText(str(delayValue));
+ textfield5.setText(str(pressionValue));
+ calculdegres();
+ calculdegresavance();
+ textfield4.setText(str(delayDegree));
+ textfield6.setText(str(delayAvanceDegree));
+ textfield7.setText(str(delaySpark));
+ 
+ }
+ }
+}
+
+public void calculdegres(){
+  
+   usPerDegree = (60000000 / speedValue / 360);  // 60000000 car tour allumeur
+   delayDegree = (delayValue / usPerDegree) ; // calcule le nombre de degrés d'avance finale
+  
+}
+
+public void calculdegresavance(){
+  
+   delayAvanceDegree = delayDegree - pressionValue; // Soustrait du délai final le nombre de degrés d'avance dépression
+   delaySpark = 180 - delayDegree;  // Calcule le délai qui sépare l'étincelle du PMH
+}
+
+public void draw(){
+  background(255);
+  // Draw the image to the screen at coordinate (0,0)
+  image(img,600,170);
+  
+  ellipseMode(CENTER);
+  fill(20);
+  ellipse(250,220,410,410);
+  ellipse(650,220,270,270);
+  rect(560,360,170,40);
+  rect(165,440,170,40);
+  rect(30,510,360,180);
+  
+  fill(255);
+  
+  ellipse(250,220,340,340);
+  
+  textFont(f);
+  fill(255,0,0);
+  text("6",390,110);
+  text("7",430,220);
+  arc(250, 220, 339, 339, -PI/4.6, 0);  // upper half of circle
+  
+}
+
+// Use this method to add additional statements
+// to customise the GUI controls
+public void customGUI(){
+
+}

@@ -1,0 +1,439 @@
+EESchema Schematic File Version 2
+LIBS:xilinx
+LIBS:valves
+LIBS:ttl_ieee
+LIBS:transistors
+LIBS:texas
+LIBS:special
+LIBS:siliconi
+LIBS:regul
+LIBS:pspice
+LIBS:power
+LIBS:philips
+LIBS:opto
+LIBS:motorola
+LIBS:microcontrollers
+LIBS:microchip1
+LIBS:microchip
+LIBS:memory
+LIBS:linear
+LIBS:interface
+LIBS:intel
+LIBS:hc11
+LIBS:graphic
+LIBS:gennum
+LIBS:elec-unifil
+LIBS:dsp
+LIBS:display
+LIBS:digital-audio
+LIBS:device
+LIBS:cypress
+LIBS:contrib
+LIBS:conn
+LIBS:cmos_ieee
+LIBS:cmos4000
+LIBS:brooktre
+LIBS:audio
+LIBS:analog_switches
+LIBS:adc-dac
+LIBS:74xx
+LIBS:DDLM
+LIBS:Tete_budha
+LIBS:aecp-cache
+EELAYER 25 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 3 3
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+Text Notes 3600 3650 0    60   ~ 0
+Copyleft 2014\n\nChristophe Dedessus Les Moutier\nchristophe.dedessus@sfr.fr
+Text GLabel 2600 5500 0    60   Input ~ 0
+PROTECTION
+Text GLabel 4150 5750 0    60   Input ~ 0
+COIL1
+Text GLabel 4100 6100 0    60   Input ~ 0
+LED1
+$Comp
+L BC807-40 Q2
+U 1 1 544F06C0
+P 3400 5500
+F 0 "Q2" H 3400 5351 40  0000 R CNN
+F 1 "BC807-40" H 3400 5650 40  0000 R CNN
+F 2 "Housings_TO-92:TO-92-Free-rugged" H 3200 5602 29  0001 C CNN
+F 3 "" H 3400 5500 60  0000 C CNN
+	1    3400 5500
+	1    0    0    1   
+$EndComp
+$Comp
+L R R12
+U 1 1 544F076E
+P 2950 5850
+F 0 "R12" V 3030 5850 50  0000 C CNN
+F 1 "1K" V 2950 5850 50  0000 C CNN
+F 2 "Discret:R4-LARGE_PADS" H 2950 5850 60  0001 C CNN
+F 3 "" H 2950 5850 60  0000 C CNN
+	1    2950 5850
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR033
+U 1 1 544F07A4
+P 2950 6350
+F 0 "#PWR033" H 2950 6350 30  0001 C CNN
+F 1 "GND" H 2950 6280 30  0001 C CNN
+F 2 "" H 2950 6350 60  0000 C CNN
+F 3 "" H 2950 6350 60  0000 C CNN
+	1    2950 6350
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2600 5500 3200 5500
+Wire Wire Line
+	2950 5600 2950 5500
+Connection ~ 2950 5500
+Wire Wire Line
+	3500 5700 3500 6200
+Wire Wire Line
+	3500 6200 2950 6200
+Wire Wire Line
+	2950 6100 2950 6350
+Connection ~ 2950 6200
+$Comp
+L DIODE D4
+U 1 1 544F0847
+P 4400 5150
+F 0 "D4" H 4400 5350 70  0000 C CNN
+F 1 "1N4007" H 4350 4950 70  0000 C CNN
+F 2 "Discret:D4" H 4400 5150 60  0001 C CNN
+F 3 "" H 4400 5150 60  0000 C CNN
+	1    4400 5150
+	-1   0    0    1   
+$EndComp
+$Comp
+L R R15
+U 1 1 544F08ED
+P 5200 4500
+F 0 "R15" V 5280 4500 50  0000 C CNN
+F 1 "1K" V 5200 4500 50  0000 C CNN
+F 2 "Discret:R4-LARGE_PADS" H 5200 4500 60  0001 C CNN
+F 3 "" H 5200 4500 60  0000 C CNN
+	1    5200 4500
+	1    0    0    -1  
+$EndComp
+$Comp
+L BC817-40 Q3
+U 1 1 544F095D
+P 5100 5750
+F 0 "Q3" H 5100 5601 40  0000 R CNN
+F 1 "BC817-40" H 5100 5900 40  0000 R CNN
+F 2 "Housings_TO-92:TO-92-Free-rugged" H 4900 5852 29  0001 C CNN
+F 3 "" H 5100 5750 60  0000 C CNN
+	1    5100 5750
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3500 5150 4200 5150
+Wire Wire Line
+	3500 2800 3500 5300
+Wire Wire Line
+	4600 5150 5600 5150
+Wire Wire Line
+	5200 4750 5200 5550
+Connection ~ 5200 5150
+$Comp
+L R R14
+U 1 1 544F0A02
+P 4500 5750
+F 0 "R14" V 4580 5750 50  0000 C CNN
+F 1 "390" V 4500 5750 50  0000 C CNN
+F 2 "Discret:R4-LARGE_PADS" H 4500 5750 60  0001 C CNN
+F 3 "" H 4500 5750 60  0000 C CNN
+	1    4500 5750
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	4750 5750 4900 5750
+$Comp
+L GND #PWR034
+U 1 1 544F0A6C
+P 5200 6350
+F 0 "#PWR034" H 5200 6350 30  0001 C CNN
+F 1 "GND" H 5200 6280 30  0001 C CNN
+F 2 "" H 5200 6350 60  0000 C CNN
+F 3 "" H 5200 6350 60  0000 C CNN
+	1    5200 6350
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5200 5950 5200 6350
+Wire Wire Line
+	4150 5750 4250 5750
+$Comp
+L R R13
+U 1 1 544F0AD1
+P 4450 6100
+F 0 "R13" V 4530 6100 50  0000 C CNN
+F 1 "1K" V 4450 6100 50  0000 C CNN
+F 2 "Discret:R4-LARGE_PADS" H 4450 6100 60  0001 C CNN
+F 3 "" H 4450 6100 60  0000 C CNN
+	1    4450 6100
+	0    1    1    0   
+$EndComp
+$Comp
+L LED D6
+U 1 1 544F0B4D
+P 4950 6100
+F 0 "D6" H 4950 6200 50  0000 C CNN
+F 1 "LED" H 4950 6000 50  0000 C CNN
+F 2 "LEDs:LED-5MM" H 4950 6100 60  0001 C CNN
+F 3 "" H 4950 6100 60  0000 C CNN
+	1    4950 6100
+	1    0    0    1   
+$EndComp
+Wire Wire Line
+	4100 6100 4200 6100
+Wire Wire Line
+	4700 6100 4750 6100
+Wire Wire Line
+	5150 6100 5200 6100
+Connection ~ 5200 6100
+Text GLabel 6000 3350 0    60   Input ~ 0
+COIL2
+Text GLabel 5950 3700 0    60   Input ~ 0
+LED2
+$Comp
+L BC817-40 Q5
+U 1 1 544F0DB1
+P 6950 3350
+F 0 "Q5" H 6950 3201 40  0000 R CNN
+F 1 "BC817-40" H 6950 3500 40  0000 R CNN
+F 2 "Housings_TO-92:TO-92-Free-rugged" H 6750 3452 29  0001 C CNN
+F 3 "" H 6950 3350 60  0000 C CNN
+	1    6950 3350
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R17
+U 1 1 544F0DB8
+P 6350 3350
+F 0 "R17" V 6430 3350 50  0000 C CNN
+F 1 "390" V 6350 3350 50  0000 C CNN
+F 2 "Discret:R4-LARGE_PADS" H 6350 3350 60  0001 C CNN
+F 3 "" H 6350 3350 60  0000 C CNN
+	1    6350 3350
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	6600 3350 6750 3350
+$Comp
+L GND #PWR035
+U 1 1 544F0DBF
+P 7050 3950
+F 0 "#PWR035" H 7050 3950 30  0001 C CNN
+F 1 "GND" H 7050 3880 30  0001 C CNN
+F 2 "" H 7050 3950 60  0000 C CNN
+F 3 "" H 7050 3950 60  0000 C CNN
+	1    7050 3950
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7050 3550 7050 3950
+Wire Wire Line
+	6000 3350 6100 3350
+$Comp
+L R R16
+U 1 1 544F0DC7
+P 6300 3700
+F 0 "R16" V 6380 3700 50  0000 C CNN
+F 1 "1K" V 6300 3700 50  0000 C CNN
+F 2 "Discret:R4-LARGE_PADS" H 6300 3700 60  0001 C CNN
+F 3 "" H 6300 3700 60  0000 C CNN
+	1    6300 3700
+	0    1    1    0   
+$EndComp
+$Comp
+L LED D7
+U 1 1 544F0DCD
+P 6800 3700
+F 0 "D7" H 6800 3800 50  0000 C CNN
+F 1 "LED" H 6800 3600 50  0000 C CNN
+F 2 "LEDs:LED-5MM" H 6800 3700 60  0001 C CNN
+F 3 "" H 6800 3700 60  0000 C CNN
+	1    6800 3700
+	1    0    0    1   
+$EndComp
+Wire Wire Line
+	5950 3700 6050 3700
+Wire Wire Line
+	6550 3700 6600 3700
+Wire Wire Line
+	7000 3700 7050 3700
+Connection ~ 7050 3700
+$Comp
+L +5V #PWR036
+U 1 1 544F15CC
+P 5200 1500
+F 0 "#PWR036" H 5200 1590 20  0001 C CNN
+F 1 "+5V" H 5200 1590 30  0000 C CNN
+F 2 "" H 5200 1500 60  0000 C CNN
+F 3 "" H 5200 1500 60  0000 C CNN
+	1    5200 1500
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5200 1500 5200 4250
+$Comp
+L MOSFET_P Q4
+U 1 1 544F1691
+P 5800 5150
+F 0 "Q4" H 5800 5340 60  0000 R CNN
+F 1 "IRGB14C40L" H 5800 4970 60  0000 R CNN
+F 2 "Transistors_TO-220:TO-220_FET-GDS_Vertical_LargePads" H 5800 5150 60  0001 C CNN
+F 3 "" H 5800 5150 60  0000 C CNN
+	1    5800 5150
+	1    0    0    -1  
+$EndComp
+$Comp
+L HEATSINK_TO220 HS1
+U 1 1 544F1B20
+P 6100 5150
+F 0 "HS1" H 6100 5350 30  0000 C CNN
+F 1 "HEATSINK_TO220" H 6100 5000 30  0000 C CNN
+F 2 "Heatsinks:Heatsink_Fischer_SK104-STC-STIC_35x13mm_2xDrill2.5mm" H 6100 5150 60  0001 C CNN
+F 3 "" H 6100 5150 60  0000 C CNN
+	1    6100 5150
+	0    1    1    0   
+$EndComp
+$Comp
+L CONN_01X01 P6
+U 1 1 544F1C18
+P 6700 4500
+F 0 "P6" H 6700 4600 50  0000 C CNN
+F 1 "BOB1" V 6800 4500 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x01" H 6700 4500 60  0001 C CNN
+F 3 "" H 6700 4500 60  0000 C CNN
+	1    6700 4500
+	1    0    0    -1  
+$EndComp
+$Comp
+L CONN_01X01 P7
+U 1 1 544F1C72
+P 6700 5800
+F 0 "P7" H 6700 5900 50  0000 C CNN
+F 1 "GND1" V 6800 5800 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x01" H 6700 5800 60  0001 C CNN
+F 3 "" H 6700 5800 60  0000 C CNN
+	1    6700 5800
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6500 4500 5900 4500
+Wire Wire Line
+	5900 4500 5900 4950
+Wire Wire Line
+	6500 5800 5900 5800
+Wire Wire Line
+	5900 5800 5900 5350
+Wire Wire Line
+	4550 2800 7450 2800
+$Comp
+L MOSFET_P Q6
+U 1 1 544F21C1
+P 7650 2800
+F 0 "Q6" H 7650 2990 60  0000 R CNN
+F 1 "IRGB14C40L" H 7650 2620 60  0000 R CNN
+F 2 "Transistors_TO-220:TO-220_FET-GDS_Vertical_LargePads" H 7650 2800 60  0001 C CNN
+F 3 "" H 7650 2800 60  0000 C CNN
+	1    7650 2800
+	1    0    0    -1  
+$EndComp
+$Comp
+L HEATSINK_TO220 HS2
+U 1 1 544F21C7
+P 7950 2800
+F 0 "HS2" H 7950 3000 30  0000 C CNN
+F 1 "HEATSINK_TO220" H 7950 2650 30  0000 C CNN
+F 2 "Heatsinks:Heatsink_Fischer_SK104-STC-STIC_35x13mm_2xDrill2.5mm" H 7950 2800 60  0001 C CNN
+F 3 "" H 7950 2800 60  0000 C CNN
+	1    7950 2800
+	0    1    1    0   
+$EndComp
+$Comp
+L CONN_01X01 P8
+U 1 1 544F21CD
+P 8550 2150
+F 0 "P8" H 8550 2250 50  0000 C CNN
+F 1 "BOB2" V 8650 2150 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x01" H 8550 2150 60  0001 C CNN
+F 3 "" H 8550 2150 60  0000 C CNN
+	1    8550 2150
+	1    0    0    -1  
+$EndComp
+$Comp
+L CONN_01X01 P9
+U 1 1 544F21D3
+P 8550 3450
+F 0 "P9" H 8550 3550 50  0000 C CNN
+F 1 "GND2" V 8650 3450 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x01" H 8550 3450 60  0001 C CNN
+F 3 "" H 8550 3450 60  0000 C CNN
+	1    8550 3450
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8350 2150 7750 2150
+Wire Wire Line
+	7750 2150 7750 2600
+Wire Wire Line
+	8350 3450 7750 3450
+Wire Wire Line
+	7750 3450 7750 3000
+$Comp
+L R R18
+U 1 1 544F2BD5
+P 7050 2300
+F 0 "R18" V 7130 2300 50  0000 C CNN
+F 1 "1K" V 7050 2300 50  0000 C CNN
+F 2 "Discret:R4-LARGE_PADS" H 7050 2300 60  0001 C CNN
+F 3 "" H 7050 2300 60  0000 C CNN
+	1    7050 2300
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7050 2550 7050 3150
+Connection ~ 7050 2800
+Wire Wire Line
+	7050 1950 7050 2050
+Wire Wire Line
+	3500 2800 4150 2800
+Wire Wire Line
+	5200 1950 7050 1950
+Connection ~ 5200 1950
+$Comp
+L DIODE D5
+U 1 1 544F2F4E
+P 4350 2800
+F 0 "D5" H 4350 3000 70  0000 C CNN
+F 1 "1N4007" H 4300 2600 70  0000 C CNN
+F 2 "Discret:D4" H 4350 2800 60  0001 C CNN
+F 3 "" H 4350 2800 60  0000 C CNN
+	1    4350 2800
+	-1   0    0    1   
+$EndComp
+Connection ~ 3500 5150
+Text Notes 5400 5050 0    60   ~ 0
+IGBT
+Text Notes 7250 2650 0    60   ~ 0
+IGBT
+Text Notes 1950 5250 0    60   ~ 0
+Protection des bobines\nen cas de défaillance du µc
+$EndSCHEMATC
