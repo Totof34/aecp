@@ -1,0 +1,12 @@
+// Ci-desous le deux principales lignes de code qui détermine l'allure des courbes destinées aux moteur Panhard
+// celle-ci est pour un allumeur AC4114A pour moteur M8N qui équipe les 24 et 17 de la marque
+// les deux tableaux sont remplis au départ d'un relevé manuel des courbes construxteur
+// le premier est constitué par les degrés d'avance centrifuge additionné de l'avance statique
+
+// L'avance statique est de 4.5 dents d'avance statique côté volant moteur à partir de 0 T/min X10 pour avoir un entier
+// Degrés à convertir en degrés allumeur ( 104 dents pour 360°), (360/104)*4.5, ce qui donne ici 156
+
+// Le second comprend les vitesses en tours allumeur soit tours moteur divisé par 2
+
+volatile int Advance[11]= {156,156,205,210,216,223,226,231,233,234,234  }; // en 1/10 de degrés d'avance allumeur à partir de 0 T/min,soit avec l'avance statique];
+volatile int Speed[11] = {0,540,1700,1800,1900,2000,2040,2080,2100,3000,3500  }; // Vitesse de rotation en tour allumeur;

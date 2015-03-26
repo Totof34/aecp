@@ -34,11 +34,8 @@
 
 // Le second comprend les vitesses en tours allumeur soit tours moteur divisé par 2
 
-// Ok au 26/03/2015
-// Tableau initial pour allumeur 2156D avec avance de 9 dents
-
-volatile int Advance[14]= {311,311,321,332,341,349,359,364,368,372,377,384,387,387   }; // en 1/10 de degrés d'avance allumeur à partir de 0 T/min,soit avec l'avance statique];
-volatile int Speed[14] = {0,620,860,1100,1300,1500,1700,1800,1860,1900,1960,2000,2020,3500  }; // Vitesse de rotation en tour allumeur;
+volatile int Advance[11]= {156,156,205,210,216,223,226,231,233,234,234  }; // en 1/10 de degrés d'avance allumeur à partir de 0 T/min,soit avec l'avance statique];
+volatile int Speed[11] = {0,540,1700,1800,1900,2000,2040,2080,2100,3000,3500  }; // Vitesse de rotation en tour allumeur;
 
 // Début du code source
 
@@ -120,7 +117,7 @@ void calculateArrayValues()
   int CALC_RPM = 0; // Pour créer le tableau
   int hallAdvance = 180; // On assimile le position du capteur de rotation à 180° du point mort haut
 
-  for(int x = 1; x <=14; x++)
+  for(int x = 1; x <=11; x++)
   {
         
     slope[x] = abs(Advance[x] - Advance[x-1])/float((Speed[x] - Speed[x-1])*10); // La fonction pour calculer l'avance linéaire est y = mx+b ou m = (y2-y1)/(x2-x1)
@@ -155,7 +152,106 @@ void calculateArrayValues()
   }
 }
 
+/// Charge la bobine par mise à la masse, attente du délai "DWELL", et reconnexion à la masse pour créer l'étincelle
+void dwellAndFire(int pin)
+{
+  digitalWrite(LED1, HIGH); // Allume la Led de controle
+  digitalWrite(pin, LOW);   // Met la bobine à la masse (charge)
+  delayMicroseconds(DWELL);
+  digitalWrite(pin, HIGH);  // Déclenche la bobine, émission de l'étincelle
+  digitalWrite(LED1, LOW);  // Eteint la Led de controle
+  
+}
 
+/// Interruption pour le capteur principal
+void camSensor()
+{
+  if ( digitalRead(SENSOR1) == LOW ){                   // Continue seulement si l'état de la broche d'interruption est basse, évite les rebonds du signal
+    //start_times_global = micros();               
+    elapsedtime = micros() - lastDuration; 
+    //Serial.println(elapsedtime);     
+    engine_rpm = 30000000/elapsedtime;                      // Lis le temps écoulé pour determiner la vitesse. Note: 30000ms
+    // Car 2 rotation par tour volant moteur
+
+    lastDuration = micros();
+    rpm_total= rpm_total - rpm_readings[current_index_rpm]; // Soustrait la lecture précédente du total    
+                                                            // Remplace le temps courants comme nouveau temps 
+    rpm_readings[current_index_rpm] = engine_rpm;           // Place ce temps courant dans l'élémnent en cours
+    rpm_total= rpm_total + rpm_readings[current_index_rpm]; // Ajoute le temps lu au total    
+    current_index_rpm++;                                    // Avance au prochain élémnet du tableau
+    if (current_index_rpm >= (num_rpm_readings - 1))   {    // Si on a atteint la fin du tableau faire .....
+      current_index_rpm = 0;                               // ...Une boucle et recommencer au début        
+    }
+    engine_rpm_average = rpm_total / num_rpm_readings;      // Calcule la moyenne
+        
+    triggered = true;
+    
+    //stop_times_global = micros();
+    //conversiontime_global = stop_times_global - start_times_global;             // Temps moyen 92 µs par appel de l'interruption
+    //Serial.println(conversiontime_global);
+
+  }        
+}
+
+//-------------------------------------------- Function to map the engine rpm to value for the array element --------------------------------------------// 
+int decode_rpm(int rpm_){
+
+  //map_rpm = 1;
+  if(elapsedtime > RPMS[MAX_INDEX]) // On ne dépasse pas la ligne rouge, on peut émettre une étincelle
+  {
+    if(elapsedtime < RPMS[1]) // Le délai est plus petit que le premier délai du tableau, donc vitesse supérieure à "startRPM"
+    {
+      if((elapsedtime*1.1) < RPMS[map_rpm]) // Incrémentation de la vitesse, avec un coefficient pour tomber bon dans le tableau
+      {
+        map_rpm++; // Saute au prochain index dans le tableaau
+      }
+      else if((elapsedtime*1.1) > RPMS[map_rpm]) // Décrémentation de la vitesse
+      {
+        map_rpm--; // Saute au prochain index dans le tableaau
+      }
+    }
+  }        
+  //Serial.println(map_rpm);
+  return map_rpm;
+}
+
+//-------------------------------------------- Fonction pour "mapper" la valeur lue du capteur de dépression --------------------------------------------//
+int decode_pressure(int pressure_) {
+
+  map_pressure = 0;
+  if(pressure_ < 70){
+    map_pressure = 0;
+  }
+  else if (pressure_ > 210){
+    map_pressure = 15;
+  }
+  else{
+    while(pressure_ > pressure_axis[map_pressure]){
+      map_pressure++;
+    }
+  }
+  cmap_pressure = 15 - map_pressure;
+  //Serial.println(map_pressure);
+  return cmap_pressure;
+}
+//-------------------------------------------- Fonction pour lire le capteur de dépression --------------------------------------------//
+int read_pressure (){
+  //start_times = micros();
+  // Fonction pour moyenner la lecture du capteur de pression
+  total = total - readings[current_index];        //Soustrait la lecture précédente du total enregistré dans l'index actuel
+  readings[current_index] = analogRead(A6);       //Place ce temps courant dans l'élémnent en cours
+  total = total + readings[current_index];        //Ajoute le temps lu au total 
+  current_index++;                                //Avance au prochain élémnet du tableau     
+  if (current_index >= numReadings - 1){          //Si on a atteint la fin du tableau faire .....
+    current_index = 0;                            //...Une boucle et recommencer au début 
+  }  
+  manifold_pressure = total / numReadings;        //Calcule la moyenne
+  map_pressure_kpa = map(manifold_pressure,220,400,70,210);  
+  delay(1);                                       // délai entre chaque lecture pour stabiliser de 1 ms, en tenir compte pour le temps final
+  //stop_times = micros();
+  //conversiontime = stop_times - start_times;      // temps moyen de 1124 µs dont un délai de 1ms à la ligne précédente
+
+}
 
 /// Applique les propriétés au départ (1 seule fois) puis attache les interruptions
 void setup()
@@ -183,47 +279,65 @@ void setup()
   ADCSRA |= PS_16;    
   // Choisir votre diviseur à PS_16 est la vitesse la plus rapide 
 
- 
+  for (int thisReading = 0; thisReading < numReadings; thisReading++)       // Peuple le tableau de pression avec des zéro
+    readings[thisReading] = 0;  
+
+  for (int thisReading = 0; thisReading < num_rpm_readings; thisReading++)   // Peuple le tableau de vitesse avec des zéro
+    rpm_readings[thisReading] = 0;
+
+  //attachInterrupt(1, idleSensor, RISING); // Interruption du capteur de proximité
+  attachInterrupt(0, camSensor, FALLING); // Interruption du capteur principal
+
+
 
 }
-
-void editcourbe(){
-  for(int i = 0; i < 175; i++)
-    {    
-    Serial.print(i*20);
-    Serial.print(",");
-    Serial.print(DELAYS[i]);
-    Serial.print(",");
-    Serial.println(DELAYDEP[i]);
-    }
-}
-
-void demo(){
-  for(int i = 1; i < 175; i++){
-    Serial.print("V");
-    Serial.print(",");
-    Serial.print(i*20);
-    Serial.print(",");
-    Serial.print("0");
-    Serial.print(",");
-    Serial.print(DELAYS[i]);
-    Serial.print(",");
-    Serial.print(DELAYDEP[i]);
-    Serial.print(",");
-    Serial.print("0");
-    Serial.println(",");
-    delay(100);
-  }
-}
-
-
 /// Si on capte un signal sur l'entrée on récupère le délai et on actionne la bobine.
 void loop()
 {
  
-   //editcourbe();
-       
-   demo();
+
+    if (triggered){
+    start_times = micros();
+    start_times_global = micros();
+    triggered = false;  
+    
+    decode_rpm(elapsedtime);
+    //stop_times = micros();
+    finaldelay = (DELAYS[map_rpm]) - (cmap_pressure * (DELAYDEP[map_rpm])); // cmap_pressure correspond à la valeur de dépression en degré lue au tour précédent
+    stop_times = micros(); 
+    conversiontime = (stop_times - start_times);        // temps moyen d'écart avec la consigne "DELAYS[map_rpm]" de 50 µs
+    //start_times_global = micros();
+    milli_delay = ((finaldelay/1000)-2);
+    micro_delay = (finaldelay-(milli_delay*1000))-conversiontime-80; // -conversiontime pour corriger les erreurs de sommations du temps des différentes lecture et calculs
+    //start_times = micros();
+    
+    delay(milli_delay); // Currently, the largest value that will produce an accurate delay is 16383 µs
+    delayMicroseconds(micro_delay); // Currently, the largest value that will produce an accurate delay is 16383 µs
+    stop_times_global = micros();
+    //stop_times = micros();
+    //conversiontime = stop_times - start_times;        // temps moyen d'écart avec la consigne "DELAYS[map_rpm]" de 20 µs
+    conversiontime_global = stop_times_global - start_times_global; 
+    dwellAndFire(COIL1);
+    //delayMicroseconds(DWELL);
+    
+    read_pressure ();
+    decode_pressure(map_pressure_kpa);
+    
+    Serial.print("V");
+    Serial.print(",");
+    Serial.print(engine_rpm_average);
+    Serial.print(",");
+    Serial.print(cmap_pressure);
+    Serial.print(",");
+    Serial.print(DELAYS[map_rpm]);
+    Serial.print(",");
+    Serial.print(DELAYDEP[map_rpm]);
+    Serial.print(",");
+    Serial.print(conversiontime_global);
+    Serial.println(",");
+     
+  }
+  
 
 }
 

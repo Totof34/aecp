@@ -29,10 +29,16 @@
 // L'avance statique est de 4.5 dents d'avance statique côté volant moteur à partir de 0 T/min X10 pour avoir un entier
 // Degrés à convertir en degrés allumeur ( 104 dents pour 360°), (360/104)*4.5, ce qui donne ici 156
 
+// pour 5 dents on a donc ((360/104)*5)*10, ce qui donne ici 173
+// pour 9 dents on a donc ((360/104)*9)*10, ce qui donne ici 311
+
 // Le second comprend les vitesses en tours allumeur soit tours moteur divisé par 2
 
-volatile int Advance[11]= {156,156,205,210,216,223,226,231,233,234,234  }; // en 1/10 de degrés d'avance allumeur à partir de 0 T/min,soit avec l'avance statique];
-volatile int Speed[11] = {0,540,1700,1800,1900,2000,2040,2080,2100,3000,3500  }; // Vitesse de rotation en tour allumeur;
+// Ok au 26/03/2015
+// Tableau initial pour allumeur 4114A avec avance de 5 dents
+
+volatile int Advance[14]= {173,173,184,192,210,223,228,236,239,240,246,248,251,251  }; // en 1/10 de degrés d'avance allumeur à partir de 0 T/min,soit avec l'avance statique];
+volatile int Speed[14] = {0,540,800,1000,1400,1700,1800,1960,2000,2020,2060,2080,2100,3500  }; // Vitesse de rotation en tour allumeur;
 
 // Début du code source
 
@@ -114,7 +120,7 @@ void calculateArrayValues()
   int CALC_RPM = 0; // Pour créer le tableau
   int hallAdvance = 180; // On assimile le position du capteur de rotation à 180° du point mort haut
 
-  for(int x = 1; x <=11; x++)
+  for(int x = 1; x <=14; x++)
   {
         
     slope[x] = abs(Advance[x] - Advance[x-1])/float((Speed[x] - Speed[x-1])*10); // La fonction pour calculer l'avance linéaire est y = mx+b ou m = (y2-y1)/(x2-x1)

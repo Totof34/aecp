@@ -34,11 +34,8 @@
 
 // Le second comprend les vitesses en tours allumeur soit tours moteur divisé par 2
 
-// Ok au 26/03/2015
-// Tableau initial pour allumeur 2156D avec avance de 9 dents
-
-volatile int Advance[14]= {311,311,321,332,341,349,359,364,368,372,377,384,387,387   }; // en 1/10 de degrés d'avance allumeur à partir de 0 T/min,soit avec l'avance statique];
-volatile int Speed[14] = {0,620,860,1100,1300,1500,1700,1800,1860,1900,1960,2000,2020,3500  }; // Vitesse de rotation en tour allumeur;
+volatile int Advance[11]= {156,156,166,181,196,201,206,206,206,206,206  }; // en 1/10 de degrés d'avance allumeur à partir de 0 T/min,soit avec l'avance statique];
+volatile int Speed[11] = {0,540,1000,1400,1800,1900,2000,2080,2100,3000,3500  }; // Vitesse de rotation en tour allumeur;
 
 // Début du code source
 
@@ -120,7 +117,7 @@ void calculateArrayValues()
   int CALC_RPM = 0; // Pour créer le tableau
   int hallAdvance = 180; // On assimile le position du capteur de rotation à 180° du point mort haut
 
-  for(int x = 1; x <=14; x++)
+  for(int x = 1; x <=11; x++)
   {
         
     slope[x] = abs(Advance[x] - Advance[x-1])/float((Speed[x] - Speed[x-1])*10); // La fonction pour calculer l'avance linéaire est y = mx+b ou m = (y2-y1)/(x2-x1)
@@ -221,9 +218,9 @@ void demo(){
 void loop()
 {
  
-   //editcourbe();
+   editcourbe();
        
-   demo();
+   //demo();
 
 }
 

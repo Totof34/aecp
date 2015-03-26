@@ -18,18 +18,27 @@ int correctederrordelay; // Corrigé pour anihiler l'action de la dépression da
 float errordelaypercent;
 int usPerDegree;
 float delayDegree;
+float advanceStatic;
 float correcteddelayDegree;
 String scorrecteddelayDegree;
 float delayAvanceDegree;
 String sdelayAvanceDegree;
 float delaySpark;
 String sdelaySpark;
-
+int indexCurve; // Pour sélectionner une courbe allumeur
+String nameCurve; // Le nom de la courbes
+String titleCurve; // Le titre du graphique
+String titleCurve2;// deuxième ligne de titre du graphique
 
 PImage img;
+PImage img2;
+
 PFont ft;
+PFont ft2;
 PFont fg;
+PFont fg2;
 PFont fe;
+PFont fe2;
 PFont f;
 String[] advanceCurve = new String[176];
 String[] depressionCurve = new String[16];
@@ -41,8 +50,25 @@ int[] myspeed = new int[176];
 int mydepressionRaw;
 int[] mydepression = new int[16];
 
+Table table;
+
+Boolean stateCheck1 = true;
+Boolean stateCheck2 = false;
+Boolean stateCheck3 = false;
+Boolean stateCheck4 = false;
+String stringList = "Dyna Z";
+String stringList2;
+String stringList3;
+String stringList4;
+String stringList5;
+String stringName = "Types mines";
+String stringName1;
+String stringName2;
+String stringName3;
+String stringName4;
+
 public void setup(){
-  size(1580, 748, JAVA2D);
+  size(1350, 690, JAVA2D);
   createGUI();
   customGUI();
   // Place your setup code here
@@ -57,8 +83,8 @@ public void setup(){
  
  // Make a new instance of the file dataCurve for loading some data
 
- 
- advanceCurve = loadStrings("advanceCurve.txt");
+ nameCurve = ("a4114a.txt");
+ advanceCurve = loadStrings(nameCurve);
  depressionCurve = loadStrings("depressionCurve.txt");
  
 
@@ -90,7 +116,7 @@ void serialEvent(Serial p) {
  
  if (message != null)
  {
- print("Message" + message);
+ //print("Message" + message);
  // On découpe le message à chaque virgule, on le stocke dans un tableau
  String [] data = message.split(",");
 
@@ -137,6 +163,7 @@ void serialEvent(Serial p) {
  textfield2.setText(str(pressionValue)); // affiche le nombre de degrés de dépression
  textfield3.setText(str(delayValue));
  textfield5.setText(str(pressionValue));
+ textfield6.setText(str(advanceStatic));
  textfield4.setText(scorrecteddelayDegree);
  textfield7.setText(sdelaySpark); // affiche le nombre de degrés résultants
  textfield8.setText(scorrecteddelayDegree); // affiche le nombre de degrés centrifuges
@@ -155,9 +182,8 @@ void serialEvent(Serial p) {
 }
 
 public void calculdegres(){
-  
    usPerDegree = (60000000 / speedValue / 360);  // 60000000 car tour allumeur
-   delayDegree = ((delayValue+3100) / float(delaydegValue))+15.6 ; // calcule le nombre de degrés d'avance finale
+   delayDegree = ((delayValue+3100) / float(delaydegValue))+advanceStatic ; // calcule le nombre de degrés d'avance finale
    correcteddelayDegree = 180 - delayDegree;
    //println(correcteddelayDegree);
 }
@@ -166,7 +192,7 @@ public void calculdegresavance(){
    
    
    delayAvanceDegree = delayDegree - pressionValue; // Soustrait du délai final le nombre de degrés d'avance dépression
-   delaySpark = 180 - delayAvanceDegree+15.6;  // Calcule le délai qui sépare l'étincelle du PMH
+   delaySpark = 180 - delayAvanceDegree+advanceStatic;  // Calcule le délai qui sépare l'étincelle du PMH
    
 }
 
@@ -192,12 +218,12 @@ public void drawmycentrifugalcurve(){
   for (int q = 1; q<175; q++){
     int xav = q;
     int lastxav = q-1;
-    int xavc = 480 + (q*2);
-    int lastxavc = 480 + ((q-1)/20);
+    int xavc = 390 + (q*2);
+    int lastxavc = 390 + ((q-1)/20);
     int yav = (myspeed [q]/10);
     int lastyav = (myspeed [q-1]/10);
-    int yavc = 680 - (yav/5);
-    int lastyavc = 680 - (lastyav);
+    int yavc = 650 - (yav/5);
+    int lastyavc = 650 - (lastyav);
     //println(myspeed [q]);
     fill(0);
     line(xavc,yavc,xavc+1,yavc-1);
@@ -238,44 +264,84 @@ public void drawmydepressioncurve(){
   }
 }
 
+public void selectcentrifugalcurve(){
+  indexCurve = dropList1.getSelectedIndex();
+  //println(indexCurve);
+  
+  switch(indexCurve) {
+   case 0: 
+     advanceStatic = 17.3;
+     nameCurve = "a4114a.txt";
+     advanceCurve = loadStrings(nameCurve); 
+     titleCurve = "Allumeur A4114A-SEV TC/TG"; 
+     titleCurve2 = "    (M8N - N2 & N5)";
+     break;
+   case 1: 
+     advanceStatic = 31.1; 
+     nameCurve = "2156d.txt";
+     advanceCurve = loadStrings(nameCurve); 
+     titleCurve = "Allumeur 2156D pour M5";
+     titleCurve2 = "    (     N2       )";
+     break;
+   case 2: 
+     advanceStatic = 17.3;
+     nameCurve = "a132.txt";
+     advanceCurve = loadStrings(nameCurve); 
+     titleCurve = "    Allumeur A132-SEV"; 
+     titleCurve2 = "    (M10S - N1 1965)";
+     break;
+   case 3: 
+     advanceStatic = 17.3;
+     nameCurve = "525292.txt";
+     advanceCurve = loadStrings(nameCurve); 
+     titleCurve = "  Allumeur 525292 - SCD"; 
+     titleCurve2 = "                   ";
+     break;  
+   }
+  
+  
+  drawcentrifugalcurve();
+}
+
 
 public void drawcentrifugalcurve(){
   fill(0,0,0);
-  rect(450,420,410,300); // Cadre noir du graphique d'avance centrifuge
+  rect(360,390,410,300); // Cadre noir du graphique d'avance centrifuge
   fill(255,255,204);
-  rect(460,430,390,280);  // Cadre beige du graphique d'avance centrifuge
+  rect(370,400,390,280);  // Cadre beige du graphique d'avance centrifuge
   fill(0);
   // Trace le cadrillage de l'avance centrifuge
-  for (int i = 480; i < 831; i = i+50) 
+  for (int i = 390; i < 741; i = i+50) 
   {
-  line(i, 480, i, 680); // ligne verticale
+  line(i, 450, i, 650); // ligne verticale
   
   }
-  for (int i = 680; i > 479; i = i-40) 
+  for (int i = 650; i > 449; i = i-40) 
   {
-  line(480, i, 831, i); // ligne horizontale
+  line(390, i, 741, i); // ligne horizontale
   }
   
   textFont(f);
-  text("Allumeur A4114A pour M8N",500,460);
+  text(titleCurve,410,420);
+  text(titleCurve2,410,440);
   
   textFont(fg);
-  text(0,480-5,700);
-  text(500,480+30,700);
-  text(1000,480+80,700);
-  text(1500,480+130,700);
-  text(2000,480+180,700);
-  text(2500,480+230,700);
-  text(3000,480+280,700);
+  text(0,390-5,700);
+  text(500,390+30,670);
+  text(1000,390+80,670);
+  text(1500,390+130,670);
+  text(2000,390+180,670);
+  text(2500,390+230,670);
+  text(3000,390+280,670);
   
-  text(2,480-15,645);
-  text(4,480-15,605);
-  text(6,480-15,565);
-  text(8,480-15,525);
+  text(2,390-15,615);
+  text(4,390-15,575);
+  text(6,390-15,535);
+  text(8,390-15,495);
   
   textFont(fe);
-  text("T/min",480+330,700);
-  text("d°",480-15,480);
+  text("T/min",390+330,670);
+  text("d°",390-15,450);
   
   // Trace les bornes de l'avance centrifuge
   for (int i = 1; i<175; i++){
@@ -285,22 +351,21 @@ public void drawcentrifugalcurve(){
   int speedData = Integer.parseInt(cells[0]);
   int timeDelay = Integer.parseInt(cells[1]);
   int timeDegree = Integer.parseInt(cells[2]);
-  float degreeData = (180-15.6)-(timeDelay +3100)/float(timeDegree);
+  float degreeData = (180-advanceStatic)-(timeDelay +3100)/float(timeDegree);
   //print(speedData);
   //print(":");
   //println(degreeData);
   // Point d'origine pour les courbe (480,680)
-   int xs = 480 + (speedData/10);
+   int xs = 390 + (speedData/10);
    
-   float yd = 680 - (degreeData*20);
+   float yd = 650 - (degreeData*20);
    int ydInt = int(yd);
    
    fill(0,255,0);
    //line(xs,ydInt,xs+1,ydInt-1); // courbe cible d'origine
    
    line((xs*0.98),(ydInt*0.98),(xs*0.98)+1,(ydInt*0.98)-1);
-   
-   if (ydInt<668){
+   if (ydInt<638){
    line((xs*1.02),(ydInt*1.02),(xs*1.02)+1,(ydInt*1.02)-1);
    }
    //print(xs);
@@ -314,40 +379,40 @@ public void drawcentrifugalcurve(){
 public void drawdepressioncurve(){
   
   fill(0,0,0);
-  rect(1150,420,410,300); // Cadre noir du graphique d'avance dépression
+  rect(930,390,410,300); // Cadre noir du graphique d'avance dépression
   fill(255,255,204);
-  rect(1160,430,390,280); // Cadre beige du graphique d'avance dépression
+  rect(940,400,390,280); // Cadre beige du graphique d'avance dépression
   fill(0);
   // Trace le cadrillage de l'avance dépression
-  for (int i = 1180; i < 1531; i = i+50) 
+  for (int i = 960; i < 1311; i = i+50) 
   {
-  line(i, 480, i, 680);// ligne verticale
+  line(i, 450, i, 650);// ligne verticale
   }
-  for (int i = 680; i > 454; i = i-50) 
+  for (int i = 650; i > 424; i = i-50) 
   {
-  line(1180, i, 1530, i); // ligne horizontale
+  line(960, i, 1310, i); // ligne horizontale
   }
   
   textFont(f);
   fill(0,0,0);
-  text("Capteur de dépression",1215,460);
+  text("Capteur de dépression",990,430);
   
   textFont(fg);
-  text(0,1180-5,700);
-  text(50,1180+40,700);
-  text(100,1180+85,700);
-  text(150,1180+135,700);
-  text(200,1180+185,700);
-  text(250,1180+235,700);
-  text(300,1180+285,700);
+  text(0,960-5,670);
+  text(50,960+40,670);
+  text(100,960+85,670);
+  text(150,960+135,670);
+  text(200,960+185,670);
+  text(250,960+235,670);
+  text(300,960+285,670);
   
-  text(5,1180-15,635);
-  text(10,1180-20,585);
-  text(15,1180-20,535);
+  text(5,960-15,605);
+  text(10,960-20,555);
+  text(15,960-20,505);
  
   textFont(fe);
-  text("mmHg",1180+330,700);
-  text("d°",1180-15,480); 
+  text("mmHg",960+330,670);
+  text("d°",960-15,450); 
   
   // Trace les bornes de l'avance dépression
   for (int i = 0; i<12; i++){
@@ -356,8 +421,8 @@ public void drawdepressioncurve(){
   int depressionx = Integer.parseInt(cells[0]);
   int depressiony = Integer.parseInt(cells[1]);
     
-  mydepressionx[i][0] = 1180 + depressionx;
-  mydepressiony[i][0] = 680 - depressiony;
+  mydepressionx[i][0] = 960 + depressionx;
+  mydepressiony[i][0] = 650 - depressiony;
   
   //print(mydepressionx[i][0]);
   //print(":");
@@ -386,7 +451,54 @@ public void drawdepressioncurve(){
   }
   
 }
- 
+
+public void openhelpwindow(){
+  window1 = new GWindow(this, "Aide à la sélection", 0, 0, 1350, 690, false, JAVA2D);
+  window1.setActionOnClose(G4P.CLOSE_WINDOW);
+  window1.addDrawHandler(this, "win_draw2");
+  togGroup1 = new GToggleGroup();
+  option1 = new GOption(window1.papplet, 110, 90, 160, 20);
+  option1.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
+  option1.setText("Type mines");
+  option1.setTextBold();
+  option1.setOpaque(false);
+  option1.addEventHandler(this, "option1_clicked1");
+  option2 = new GOption(window1.papplet, 410, 90, 160, 20);
+  option2.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
+  option2.setText("Type moteur");
+  option2.setTextBold();
+  option2.setOpaque(false);
+  option2.addEventHandler(this, "option2_clicked1");
+  option3 = new GOption(window1.papplet, 710, 90, 160, 20);
+  option3.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
+  option3.setText("Marque allumeur");
+  option3.setTextBold();
+  option3.setOpaque(false);
+  option3.addEventHandler(this, "option3_clicked1");
+  option4 = new GOption(window1.papplet, 1010, 90, 160, 20);
+  option4.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
+  option4.setText("Référence Allumeur");
+  option4.setTextBold();
+  option4.setOpaque(false);
+  option4.addEventHandler(this, "option4_clicked1");
+  togGroup1.addControl(option1);
+  option1.setSelected(true);
+  togGroup1.addControl(option2);
+  togGroup1.addControl(option3);
+  togGroup1.addControl(option4);
+  dropList2 = new GDropList(window1.papplet, 110, 140, 160, 220, 10);
+  dropList2.setItems(loadStrings("list_988723"), 0);
+  dropList2.addEventHandler(this, "dropList2_click1");
+  dropList3 = new GDropList(window1.papplet, 410, 140, 160, 140, 6);
+  dropList3.setItems(loadStrings("list_846523"), 0);
+  dropList3.addEventHandler(this, "dropList3_click1");
+  dropList4 = new GDropList(window1.papplet, 710, 140, 160, 80, 3);
+  dropList4.setItems(loadStrings("list_362785"), 0);
+  dropList4.addEventHandler(this, "dropList4_click1");
+  dropList5 = new GDropList(window1.papplet, 1010, 140, 170, 220, 10);
+  dropList5.setItems(loadStrings("list_999683"), 0);
+  dropList5.addEventHandler(this, "dropList5_click1");
+}
  
 public void draw(){
   background(255);
@@ -395,32 +507,39 @@ public void draw(){
   
   textFont(ft);
   fill(0,51,0);
-  text("Allumage Electronique Cartographique pour Panhard",450,40); // Affichage du titre
+  text("Allumage Electronique Cartographique pour Panhard",370,40); // Affichage du titre
   
   ellipseMode(CENTER);
   fill(20);
-  ellipse(250,220,410,410);
-  ellipse(650,220,270,270); // Premier cercle noir avance centrifuge
-  ellipse(1000,220,270,270); // second cercle noir avance résultante
-  ellipse(1350,220,270,270); // troisième cercle noir avance dépression
-  ellipse(1005,570,270,270); // quatrième cercle noir erreur délai
-  rect(560,360,180,40); // premier cadre noir avance centrifuge
-  rect(910,360,180,40); // second cadre noir avance résultante
-  rect(1260,360,180,40); // troisième cadre noir avance dépression
-  rect(165,440,170,40); // quatrième cadre noir T/min
-  rect(90,510,300,180); // Cadre noir qui sert de tableau récapitulatif en bas à gauche
+  ellipse(210,220,405,405);
+  ellipse(580,200,270,270); // Premier cercle noir avance centrifuge
+  ellipse(890,200,270,270); // second cercle noir avance résultante
+  ellipse(1200,200,270,270); // troisième cercle noir avance dépression
+  ellipse(850,520,150,150); // quatrième cercle noir erreur délai
+  rect(490,340,180,40); // premier cadre noir avance centrifuge
+  rect(810,340,180,40); // second cadre noir avance résultante
+  rect(1110,340,180,40); // troisième cadre noir avance dépression
+  rect(110,440,170,40); // quatrième cadre noir T/min
+  rect(40,490,300,180); // Cadre noir qui sert de tableau récapitulatif en bas à gauche
+  
+  fill(150);
+  rect(800,610,100,60); // Cadre noir qui sert de bordure au bouton "aide à la sélection"
   
   fill(255);
   
-  ellipse(250,220,340,340);
+  ellipse(210,220,340,340);
+  
+  fill(255,0,0);
+  arc(210, 220, 339, 339, -PI/4.6, 0);  // upper half of circle for speed counter
   
   textFont(f);
   fill(255,0,0);
-  text("6",390,110); // Affichage des chiffres en rouge car régime moteur en zone rouge
-  text("7",430,220);
-  arc(250, 220, 339, 339, -PI/4.6, 0);  // upper half of circle for speed counter
+  text("6",350,110); // Affichage des chiffres en rouge car régime moteur en zone rouge
+  text("7",390,220);
   
-  drawcentrifugalcurve();
+  selectcentrifugalcurve(); 
+  
+  //drawcentrifugalcurve();
   drawdepressioncurve();
   drawmycentrifugalcurve();
   drawmydepressioncurve();
