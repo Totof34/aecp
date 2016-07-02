@@ -1,0 +1,21 @@
+ #!/bin/bash
+
+     rm *.pdf
+     echo 'deleted the old version of pdf.'
+
+ filelist=`(find . -name \*.ps)`
+
+ for i in $filelist; do
+
+     ps2pdf $i
+
+     rm $i
+
+     echo 'Converted $i into pdf, deleted original file.'
+
+ done 
+
+  pdftk *.pdf cat output aecp_nano_V2_complet.pdf
+
+  tar -cjf Mon_projet_aecp_nano_V2.tar *.pdf *.png *.zip
+

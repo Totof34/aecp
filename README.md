@@ -13,7 +13,8 @@ http://www.audiyofan.org/forum/viewtopic.php?f=71&t=9221
 
 PCB & schema are designed with Kicad
 
-the board uses a Atmega32U4 and usb link to transmit some data to the PC
+the new board uses a Atmega328 and usb link to transmit some data to the PC
+it's a Arduino Nano_V3
 
 The idea comes from this site
 http://a110a.free.fr/SPIP172/plan.php3
@@ -21,14 +22,21 @@ http://a110a.free.fr/SPIP172/plan.php3
 with this startpoint
 ![](images/0Hall_et_Jumo_150106.jpg)
 
-The prototype of the board under kicad
+The prototype of the new board under construction and under kicad
 
-![](images/aepc_PCB_câblé4.JPG)
+![](images/aecp_Nano1.JPG)
+![](images/aecp_Nano2.JPG)
 
-To develop our electronic ignition, we create an interface
-to receive data from the Atmega32U4 (recognized as a Arduino Leonardo) and visualize the centrifugal advance curves and vacuum advance
+With some parts 
 
-![](images/aecp_1580x748.png)
+![](images/aecp_pcb.JPG)
+
+To develop our electronic ignition, we create an new interface with a Nano_V3
+to receive data from the Atmega328 and visualize the centrifugal advance curves and vacuum advance
+
+![](images/IHM_09042016_1.png)
+![](images/IHM_09042016_Baillargues_Sommieres.png)
+![](images/IHM_0904016_multicouleurs.png)
 
 This interface is designed under Processing IDE and the board is programmed with Arduino IDE
 All the files available in subfolders
@@ -38,9 +46,7 @@ or the build folder for a made version
 
 For the schema see below
 
-![](schematics/aecp_schema.png)
-![](schematics/aecp_input_schema.png)
-![](schematics/aecp_output_schema.png)
+![](schematics/aecp_Nano_V2.pdf)
 
 for the rest, I suggest you to navigate into folders and open the pdf
 
