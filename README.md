@@ -46,7 +46,7 @@ or the build folder for a made version
 
 For the schema see below
 
-![](schematics/aecp_Nano_V2.pdf)
+![](schematics/aecp_Nano_V2.png)
 
 for the rest, I suggest you to navigate into folders and open the pdf
 
