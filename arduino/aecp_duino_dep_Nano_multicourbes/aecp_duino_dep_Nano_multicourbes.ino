@@ -2,12 +2,24 @@
 
 //**************************************************************
 //Aecp-Duino    Allumage electronique programmable - Arduino
-char ver[] = "version du 08_05_2016";//Choix entre 3 types de Dwell.
+char ver[] = "version du 04_07_2016";//Choix entre 3 types de Dwell.
 //En option, connexion d'un potard de 100kohm enter la patte A4 et la masse
 //pour changer de courbe
 //T>14ms, correction Christophe.Avance 0°jusqu'a 500t/mn, anti retour de kick
 //Detection et traitement special au demarrage (première etincelle)
 //******************************************************************************
+
+//************* ces lignes explique la lecture de la dépression ****************
+// Pour la dépression ci-dessous le tableau des mesures relevés sur un banc Souriau
+// Degdep = map((analogRead(A0)),330,565,150,0);  //Mesure la dépression
+// Degdep = map((analogRead(A0)),x,y,z,v);
+// x = valeur ADC haute pour conversion de la valeur mmHg haute
+// y = valeur ADC basse pour conversion de la valeur mmHg basse
+// z = valeur de la limite en degré haute x 10 pour avoir les centièmes
+// v = valeur de la limite en degré basse soit 0 degré
+// tableau des valeurs mmHg vs 8 bits
+// {0,707}{25,667}{50,620}{60,601}{75,576}{80,565}{95,538}{100,530}{125,485}{150,438}{175,394}{185,373}{200,350}{210,330}{225,305}{250,260}{275,216}{300,172}
+// relevé en activant la ligne Degdepcal et en ajoutant cette variable à l'édition dans le terminal série
 
 //**************  Ces 6 lignes sont à renseigner obligatoirement.****************
 // Ce sont : Na[],Anga[],  Ncyl, AngleCapteur, CaptOn, Dwell
@@ -68,7 +80,7 @@ int milli_delay = 0;
 int micro_delay = 0;
 float RDzero = 0; //pour calcul delai avance 0° < vitesse seuil plancher
 float  Tplancher = 0; //idem
-const int tcor  = 360; //correction en µs  du temps de calcul pour D 120µs + 120µs de lecture de dépression + 120µs de traitement
+const int tcor  = 380; //correction en µs  du temps de calcul pour D 120µs + 120µs de lecture de dépression + 140µs de traitement
 int unsigned long Davant_rech = 0;  //Delai en µs après etincelle pour demarrer la recharge bobine.
 int unsigned long Tprec  = 0;//Periode precedant la T en cours, pour calcul de Drech
 int unsigned long prec_H  = 0;  //Heure du front precedent en µs

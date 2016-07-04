@@ -9,12 +9,12 @@ short LF = 10; // "Fin de ligne"
 char HEADERSPEED = 'S'; // C'est le caractère que l'on a inséré avant la valeur de vitesse
 
 int speedValue; // Une variable pour stocker la valeur de vitesse
-int pressionValue; // Une variable pour stocker la valeur de pression
+float pressionValue; // Une variable pour stocker la valeur de pression
 String spressionValue;
 int delayValue; // Une variable pour stocker la valeur du délai
 int delaydegValue; // Une variable pour stocker la valeur du délai d'un degré
-int errordelay; // Une variable pour stocker la valeur d'erreur du délai
-int correctederrordelay; // Corrigé pour anihiler l'action de la dépression dans le calcul de l'erreur
+float errordelay; // Une variable pour stocker la valeur d'erreur du délai
+float correctederrordelay; // Corrigé pour anihiler l'action de la dépression dans le calcul de l'erreur
 float errordelaypercent;
 
 int topSignal = 90; // Une variable pour stocker la position du capteur
@@ -55,8 +55,8 @@ int[][] mydepressiony = new int[12][1];
 
 int myspeedRaw;
 float[] myspeed = new float[176];
-int mydepressionRaw;
-int[] mydepression = new int[16];
+float mydepressionRaw;
+float[] mydepression = new float[16];
 
 int q;
 
@@ -216,7 +216,7 @@ void serialEvent(Serial p) {
  myspeedRaw = speedRaw; 
  knob1.setValue(speedValue);
  // On convertit la valeur (String -> Int)
- int pressionRaw = Integer.parseInt(data[2]);
+ float pressionRaw = Float.parseFloat(data[2]);
  // On convertit la valeur (String -> Int)
  pressionValue = pressionRaw;
  mydepressionRaw = pressionRaw;
@@ -322,8 +322,8 @@ public void drawmycentrifugalcurve(){
 }
 
 public void storedepression(){
-  int s = mydepressionRaw;
-  int dep = s;
+  int s = int(mydepressionRaw);
+  float dep = s;
   //print(s);print(",");
   //println(av);
   mydepression [s] = dep;
@@ -337,10 +337,10 @@ public void drawmydepressioncurve(){
     int lastxdep = g-1;
     int xdepc = 1035 + (g*9); // Origine du tableau en  = 960
     int lastxdepc = 1035 + ((g-1)*9); // Origine du tableau en  = 960
-    int ydep = mydepression [g];
-    int lastydep = mydepression [g-1];
-    int ydepc = 650 - (ydep*10);
-    int lastydepc = 650 - (lastydep*10);
+    float ydep = mydepression [g];
+    float lastydep = mydepression [g-1];
+    float ydepc = 650 - (ydep*10);
+    float lastydepc = 650 - (lastydep*10);
     //println(myspeed [q]);
     fill(0);
     line(lastxdepc,lastydepc,xdepc,ydepc);
