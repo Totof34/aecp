@@ -771,8 +771,8 @@ public void createGUI(){
   label13.setTextBold();
   label13.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   label13.setOpaque(false);
-  label14 = new GLabel(this, 1310, 190, 30, 30);
-  label14.setText("15");
+  label14 = new GLabel(this, 1307, 164, 30, 30);
+  label14.setText("16");
   label14.setTextBold();
   label14.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   label14.setOpaque(false);
@@ -871,8 +871,8 @@ public void createGUI(){
   knob4.setOverArcOnly(false);
   knob4.setIncludeOverBezel(false);
   knob4.setShowTrack(true);
-  knob4.setLimits(0.0, 0.0, 15.0);
-  knob4.setNbrTicks(16);
+  knob4.setLimits(0.0, 0.0, 17.0);
+  knob4.setNbrTicks(18);
   knob4.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   knob4.setOpaque(false);
   knob4.addEventHandler(this, "knob4_dep");
@@ -934,13 +934,13 @@ public void createGUI(){
   label29.setTextBold();
   label29.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   label29.setOpaque(false);
-  label30 = new GLabel(this, 1128, 82, 30, 30);
+  label30 = new GLabel(this, 1113, 89, 30, 30);
   label30.setText("5");
   label30.setTextBold();
   label30.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   label30.setOpaque(false);
-  label31 = new GLabel(this, 1248, 82, 30, 30);
-  label31.setText("10");
+  label31 = new GLabel(this, 1242, 77, 30, 30);
+  label31.setText("11");
   label31.setTextBold();
   label31.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   label31.setOpaque(false);

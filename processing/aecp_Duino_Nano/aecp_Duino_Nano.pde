@@ -9,7 +9,9 @@ short LF = 10; // "Fin de ligne"
 char HEADERSPEED = 'S'; // C'est le caractère que l'on a inséré avant la valeur de vitesse
 
 int speedValue; // Une variable pour stocker la valeur de vitesse
-float pressionValue; // Une variable pour stocker la valeur de pression
+float pressionValue; // Une variable qui stocke le nombre de degré de dépression
+int pressionadcValue; // Une variable qui stocke la valeur brute de conversion ADC du capteur
+int mmhgValue; // Pour convertir pressionadcValue en mm de mercure mmHg
 String spressionValue;
 int delayValue; // Une variable pour stocker la valeur du délai
 int delaydegValue; // Une variable pour stocker la valeur du délai d'un degré
@@ -56,7 +58,7 @@ int[][] mydepressiony = new int[12][1];
 int myspeedRaw;
 float[] myspeed = new float[176];
 float mydepressionRaw;
-float[] mydepression = new float[16];
+float[] mydepression = new float[300];
 
 int q;
 
@@ -236,6 +238,13 @@ void serialEvent(Serial p) {
  // On convertit la valeur (String -> Int)
  errordelay = errorRaw;
  
+ // On convertit la valeur (String -> Int)
+ int depRaw = Integer.parseInt(data[6]);
+ pressionadcValue = depRaw;
+ mmhgValue = int((707 - pressionadcValue)/1.78); 
+ //println(mmhgValue);
+ 
+ 
  calculdegres();
  calculdegresavance();
  calculerreurdelai();
@@ -322,8 +331,8 @@ public void drawmycentrifugalcurve(){
 }
 
 public void storedepression(){
-  int s = int(mydepressionRaw);
-  float dep = s;
+  int s = mmhgValue;
+  float dep = mydepressionRaw;
   //print(s);print(",");
   //println(av);
   mydepression [s] = dep;
@@ -332,11 +341,11 @@ public void storedepression(){
 }
 
 public void drawmydepressioncurve(){
-  for (int g = 1; g<16; g++){
+  for (int g = 1; g<300; g++){
     int xdep = g;
     int lastxdep = g-1;
-    int xdepc = 1035 + (g*9); // Origine du tableau en  = 960
-    int lastxdepc = 1035 + ((g-1)*9); // Origine du tableau en  = 960
+    int xdepc = 960 + g; // Origine du tableau en  = 960
+    int lastxdepc = 960 + (g-1); // Origine du tableau en  = 960
     float ydep = mydepression [g];
     float lastydep = mydepression [g-1];
     float ydepc = 650 - (ydep*10);

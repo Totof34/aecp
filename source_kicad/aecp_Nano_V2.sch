@@ -161,16 +161,16 @@ Connection ~ 3750 4600
 $Comp
 L CONN_01X02 P4
 U 1 1 570ABCA6
-P 5600 3000
-F 0 "P4" H 5677 3038 50  0000 L CNN
-F 1 "CONN_SEL1" H 5677 2947 50  0000 L CNN
-F 2 "Connect:bornier2" H 5600 3000 50  0001 C CNN
-F 3 "" H 5600 3000 50  0000 C CNN
-	1    5600 3000
+P 5600 2900
+F 0 "P4" H 5677 2938 50  0000 L CNN
+F 1 "CONN_SEL1" H 5677 2847 50  0000 L CNN
+F 2 "Connect:bornier2" H 5600 2900 50  0001 C CNN
+F 3 "" H 5600 2900 50  0000 C CNN
+	1    5600 2900
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	5400 3050 5300 3050
+	5400 2950 5300 2950
 Wire Wire Line
 	5300 2400 5300 4600
 $Comp
@@ -188,7 +188,7 @@ Wire Wire Line
 	4450 2550 5100 2550
 Wire Wire Line
 	5400 2400 5300 2400
-Connection ~ 5300 3050
+Connection ~ 5300 2950
 Wire Wire Line
 	5400 2300 5100 2300
 Wire Wire Line
@@ -250,8 +250,6 @@ NoConn ~ 3050 2300
 NoConn ~ 3050 2400
 NoConn ~ 3050 2500
 NoConn ~ 4450 2350
-NoConn ~ 4450 2850
-NoConn ~ 4450 3050
 NoConn ~ 4450 3250
 NoConn ~ 3050 3450
 NoConn ~ 3050 3550
@@ -376,8 +374,6 @@ NoConn ~ 4450 2650
 Wire Wire Line
 	2750 3150 3050 3150
 NoConn ~ 3050 2700
-Wire Wire Line
-	5400 2950 4450 2950
 NoConn ~ 4450 2750
 $Comp
 L LOGO G1
@@ -412,23 +408,19 @@ Copyleft 2016\n\nChristophe Dedessus Les Moutier\nchristophe.dedessus@sfr.fr\n\n
 $Comp
 L CONN_01X02 P12
 U 1 1 5765BC76
-P 5600 3250
-F 0 "P12" H 5677 3288 50  0000 L CNN
-F 1 "CONN_SEL2" H 5677 3197 50  0000 L CNN
-F 2 "Connect:bornier2" H 5600 3250 50  0001 C CNN
-F 3 "" H 5600 3250 50  0000 C CNN
-	1    5600 3250
+P 5600 3150
+F 0 "P12" H 5677 3188 50  0000 L CNN
+F 1 "CONN_SEL2" H 5677 3097 50  0000 L CNN
+F 2 "Connect:bornier2" H 5600 3150 50  0001 C CNN
+F 3 "" H 5600 3150 50  0000 C CNN
+	1    5600 3150
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	5400 3200 4600 3200
+	5400 3100 4600 3100
 Wire Wire Line
-	4600 3200 4600 3150
-Wire Wire Line
-	4600 3150 4450 3150
-Wire Wire Line
-	5400 3300 5300 3300
-Connection ~ 5300 3300
+	5400 3200 5300 3200
+Connection ~ 5300 3200
 $Comp
 L CONN_01X01 P1
 U 1 1 5765C64A
@@ -478,7 +470,7 @@ Wire Wire Line
 Wire Wire Line
 	7000 3000 7700 3000
 Wire Wire Line
-	7700 3100 7000 3100
+	7000 3100 7700 3100
 $Comp
 L GND #PWR05
 U 1 1 576847EC
@@ -541,4 +533,12 @@ Wire Wire Line
 Connection ~ 7350 2800
 Connection ~ 7500 3100
 Connection ~ 7100 2900
+NoConn ~ 4450 3150
+Wire Wire Line
+	4600 3050 4450 3050
+NoConn ~ 4450 2950
+Wire Wire Line
+	4450 2850 5400 2850
+Wire Wire Line
+	4600 3100 4600 3050
 $EndSCHEMATC
