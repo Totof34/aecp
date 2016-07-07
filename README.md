@@ -31,6 +31,10 @@ With some parts
 
 ![](images/aecp_pcb.JPG)
 
+You can select different curve with a box
+
+![](images/Selecteur_de_courbes.JPG)
+
 To develop our electronic ignition, we create an new interface with a Nano_V3
 to receive data from the Atmega328 and visualize the centrifugal advance curves and vacuum advance
 

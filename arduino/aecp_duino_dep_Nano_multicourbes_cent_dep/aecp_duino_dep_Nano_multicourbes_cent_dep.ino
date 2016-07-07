@@ -192,8 +192,8 @@ void  Init ()////////////////////while (1); delay(1000);////////////////////////
   Tdem  = NT/Ndem;//Periode de la première étincelle
   Tplancher = 120000000 / Nplancher / Ncyl; //T à  vitesse plancher en t/mn, en dessous, avance centrifuge = 0
   RDzero = float(AngleCapteur - Avancestatique) / float(AngleCibles);
-  Select_Courbe_depression(); // Sélectionne une courbe de dépression
-  Select_Courbe();  //Ajuster éventuellement les pointeurs pN et pA pour la courbe b ou c 
+  Select_Courbe();  //Ajuster éventuellement les pointeurs pN et pA pour la courbe a,b,c,d ou e 
+  Select_Courbe_depression(); // Sélectionne pour la courbe a,b,c,d ou e de dépression
   N1  = 0; Ang1 = 0; //Toute courbe part de  0
   int i = 0;    //locale mais valable hors du FOR
   pN++; pA++; //sauter le premier element de tableau, toujours =0
@@ -242,78 +242,78 @@ void  isr_GestionIbob()////////////////////while (1); delay(1000);//////////////
 void  Select_Courbe()////////////while (1); delay(1000);/////////////////////////////
 //Par défaut, la courbe a est déja selectionnée
 { valPot1 = analogRead(Pot1);
-  Serial.print("valPot1 = "); Serial.print(valPot1);
+  Serial.print("Selecteur 1 = "); Serial.print(valPot1); Serial.print(" ,Centrifuge = ");
   if (valPot1 < 99) {                  // Shunt 0 ohm donne 15 
-    Serial.println(", Courbe a");
+    Serial.println(" Courbe a");
   }
   if (valPot1 > 110 && valPot1 < 150) { // Résistance de 4K7 donne 130 
     pN = &Nb[0];  // pointer à la courbe b
     pA = &Angb[0];
-    Serial.println(", Courbe b");
+    Serial.println(" Courbe b");
   }
   if (valPot1 > 320 && valPot1 < 360) {  // Résistance de 18K donne 340    
     pN = &Nc[0];  // pointer à la courbe c
     pA = &Angc[0];
-    Serial.println(", Courbe c");
+    Serial.println(" Courbe c");
   }
   if (valPot1 > 545 && valPot1 < 585) {  // Résistance de 47K donne 565    
     pN = &Nd[0];  // pointer à la courbe c
     pA = &Angd[0];
-    Serial.println(", Courbe d");
+    Serial.println(" Courbe d");
   }
   if (valPot1 > 715 && valPot1 < 755) {  // Résistance de 100K donne 735    
     pN = &Ne[0];  // pointer à la courbe c
     pA = &Ange[0];
-    Serial.println(", Courbe e");
+    Serial.println(" Courbe e");
   }
   if (valPot1 > 995) {                  // Pas de shunt donne 1015 
-    Serial.println(", Courbe a");
+    Serial.println(" Courbe a");
   }
 }
 void  Select_Courbe_depression()////////////while (1); delay(1000);/////////////////////////////
 { valPot2 = analogRead(Pot2);
-  Serial.print("valPot2 = "); Serial.print(valPot2);
+  Serial.print("Selecteur 2 = "); Serial.print(valPot2); Serial.print(" ,Depression = ");
   if (valPot2 < 99) {                  // Shunt 0 ohm donne 15 
     xhigh = 330; // soit 210 mmHg
     xlow = 565;  // soit 80 mmHg
     yhigh = 150; // soit 15°
     ylow = 0;    // soit 0°
-    Serial.println(", Courbe a");
+    Serial.println(" Courbe a");
   }
   if (valPot2 > 110 && valPot2 < 150) { // Résistance de 4K7 donne 130 
     xhigh = 350; // soit 200 mmHg
     xlow = 565;  // soit 80 mmHg
     yhigh = 140; // soit 14°
     ylow = 0;    // soit 0°
-    Serial.println(", Courbe b");
+    Serial.println(" Courbe b");
   }
   if (valPot2 > 320 && valPot2 < 360) {  // Résistance de 18K donne 340    
     xhigh = 350; // soit 200 mmHg
     xlow = 601;  // soit 60 mmHg
     yhigh = 160; // soit 16°
     ylow = 0;    // soit 0°
-    Serial.println(", Courbe c");
+    Serial.println(" Courbe c");
   }
   if (valPot2 > 545 && valPot2 < 585) {  // Résistance de 47K donne 565    
     xhigh = 350; // soit 200 mmHg
     xlow = 565;  // soit 80 mmHg
     yhigh = 160; // soit 16°
     ylow = 0;    // soit 0°
-    Serial.println(", Courbe d");
+    Serial.println(" Courbe d");
   }
   if (valPot2 > 715 && valPot2 < 755) {  // Résistance de 100K donne 735    
     xhigh = 350; // soit 200 mmHg
     xlow = 601;  // soit 60 mmHg
     yhigh = 140; // soit 14°
     ylow = 0;    // soit 0°
-    Serial.println(", Courbe e");
+    Serial.println(" Courbe e");
   }
   if (valPot2 > 995) {                  // Pas de shunt donne 1015 
     xhigh = 330; // soit 210 mmHg
     xlow = 565;  // soit 80 mmHg
     yhigh = 150; // soit 15°
     ylow = 0;    // soit 0°
-    Serial.println(", Courbe a");
+    Serial.println(" Courbe a");
   }
 }
 ////////////////////////////////////////////////////////////////////////
