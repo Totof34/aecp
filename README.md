@@ -24,8 +24,8 @@ with this startpoint
 
 The prototype of the new board under construction and under kicad
 
-![](images/aecp_Nano1.JPG)
-![](images/aecp_Nano2.JPG)
+![](images/aecp_nano_V2_6.JPG)
+![](images/aecp_nano_V2_7.JPG)
 
 With some parts 
 
