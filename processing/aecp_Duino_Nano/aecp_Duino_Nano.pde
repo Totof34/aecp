@@ -550,8 +550,8 @@ public void drawdepressioncurve(){
     fill(255,0,0);
     
     //line(lastxd,lastyd,xd,yd); // courbe cible d'origine
-    line(lastxd*0.98,lastyd*0.98,xd*0.98,yd*0.98);
-    line(lastxd*1.02,lastyd*1.02,xd*1.02,yd*1.02);
+    line(lastxd-10,lastyd-10,xd-10,yd-10);
+    line(lastxd+10,lastyd+10,xd+10,yd+10);
     
     
   }
