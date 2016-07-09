@@ -6,23 +6,21 @@ import processing.serial.*;
 Serial myPort; // On créé une instance de la classe Serial
 short LF = 10; // "Fin de ligne"
 
-char HEADERSPEED = 'S'; // C'est le caractère que l'on a inséré avant la valeur de vitesse
+char HEADERSPEED = 'V'; // C'est le caractère que l'on a inséré avant la valeur de vitesse
 
 int speedValue; // Une variable pour stocker la valeur de vitesse
-float pressionValue; // Une variable qui stocke le nombre de degré de dépression
-int pressionadcValue; // Une variable qui stocke la valeur brute de conversion ADC du capteur
-int mmhgValue; // Pour convertir pressionadcValue en mm de mercure mmHg
+int pressionValue; // Une variable pour stocker la valeur de pression
 String spressionValue;
 int delayValue; // Une variable pour stocker la valeur du délai
 int delaydegValue; // Une variable pour stocker la valeur du délai d'un degré
-float errordelay; // Une variable pour stocker la valeur d'erreur du délai
-float correctederrordelay; // Corrigé pour anihiler l'action de la dépression dans le calcul de l'erreur
+int errordelay; // Une variable pour stocker la valeur d'erreur du délai
+int correctederrordelay; // Corrigé pour anihiler l'action de la dépression dans le calcul de l'erreur
 float errordelaypercent;
 
 int topSignal = 90; // Une variable pour stocker la position du capteur
 int NT = 60000000; // NT = 120000000/nombre de cylindres
 int Ncyl = 360; // Ncyl = 720/nombre de cylindres 360° pour 2 et 180° pour 4 cylindres , temps entre 2 tops
-int dwellandcodetime = 0;
+int dwellandcodetime = 120;
 float usPerDegree;
 float delayDegree;
 float advanceStatic;
@@ -56,17 +54,9 @@ int[][] mydepressionx = new int[12][1];
 int[][] mydepressiony = new int[12][1]; 
 
 int myspeedRaw;
-float[] myspeed = new float[176];
-float mydepressionRaw;
-float[] mydepression = new float[300];
-
-int q;
-int xcentOrigin = 390;
-int xdepOrigin = 960;
-int ycentOrigin = 650;
-int ydepOrigin = 650;
-Boolean stateCent = true;
-
+int[] myspeed = new int[176];
+int mydepressionRaw;
+int[] mydepression = new int[16];
 
 Table table;
 
@@ -86,74 +76,36 @@ String stringName3;
 String stringName4;
 
 int time;
-int day;int month;int year;
-int hour;int minute;int second;
 int timestart;
 int timestop;
 int elapsedtime;
 int elapsedtimesec;
 int elapsedtimemsec;
 Boolean stateCheckbtnrun = true;
-Boolean stateCheckbtnrunfree = true;
-Boolean stateCheckbtnpause = true;
 Boolean stateCheck5 = true;
 Boolean stateCheck6 = false;
 String stringrpmmin;
 int Irpmmin;
 Boolean rpmmin = false;
 int runrpmmin = 0;
-Boolean Brpmmin = true;
 String stringrpmmax;
 int Irpmmax;
 Boolean rpmmax = false;
 int runrpmmax = 0;
-Boolean Brpmmax = true;
 
-float[] myrpmy = new float[1241];
-float[] mycenty = new float[1241];
-float[] mydepy = new float[1241];
+int xrpmPos = 40;         // variable abscisse  - x
+int xrpmPos0=40;       // variable mémorisation xPos n-1
+float yrpmPos=1;  // variable yPos - ordonnée
+float yrpmPos0=1; // variable yPos n-1int 
+int xcentPos = 40;         // variable abscisse  - x
+int xcentPos0=40;       // variable mémorisation xPos n-1
+float ycentPos=1;  // variable yPos - ordonnée
+float ycentPos0=1; // variable yPos n-1
+int xdepPos = 40;         // variable abscisse  - x
+int xdepPos0=1;       // variable mémorisation xPos n-1
+float ydepPos=1;  // variable yPos - ordonnée
+float ydepPos0=1; // variable yPos n-1
 
-int xrpmPos = 0;         // variable abscisse  - x
-float yrpmPos=0;  // variable yPos - ordonnée
-int xcentPos = 0;         // variable abscisse  - x
-float ycentPos=0;  // variable yPos - ordonnée
-int xdepPos = 0;         // variable abscisse  - x
-float ydepPos=0;  // variable yPos - ordonnée
-int xrorpm = 40; // Origin x du cardre de l'historique rpm voir coordonnée du cadre dans gui.pde
-int yrorpm = 330; // Origin y du cardre de l'historique rpm voir coordonnée du cadre dans gui.pde
-int xrocent = 40; // Origin x du cardre de l'historique cent voir coordonnée du cadre dans gui.pde
-int yrocent = 500; // Origin y du cardre de l'historique cent voir coordonnée du cadre dans gui.pde
-int xrodep = 40; // Origin x du cardre de l'historique dep voir coordonnée du cadre dans gui.pde
-int yrodep = 650; // Origin y du cardre de l'historique dep voir coordonnée du cadre dans gui.pde
-
-String sName = "mesure";
-String sExportdata;
-String[] sData = new String[1241];
-
-Boolean stateCheckbtnsave = true;
-Boolean stateCheckbtnload = true;
-
-Plot p;  //Globals
-Aef aef;
-String cFN = "Aecp.conf";
-StringDict config;
-
-float[][] records1 = new float [1241][3];
-float[][] records2 = new float [1241][3];
-float[][] records3 = new float [1241][3];
-float[][] records4 = new float [1241][3];
-float[] yrsave = new float[1241];
-float[] ycsave = new float[1241];
-float[] ydsave = new float[1241];
-
-Boolean stateC1 = false;Boolean stateC2 = false;Boolean stateC3 = false;Boolean stateC4 = false;
-Boolean stateC5 = false;Boolean stateC6 = false;Boolean stateC7 = false;
-color oraC = color(245,110,5); // orange
-color blC = color(10,10,255); // bleu
-color reC = color(255,10,10);// rouge
-color veC = color(10,255,10); // vert
-color jaC = color(252,252,41); // jaune
-color orC = color(175,152,18); // or
 
 public void setup(){
   size(1350, 690, JAVA2D);
@@ -163,7 +115,7 @@ public void setup(){
   smooth();
   // A vous de trouver quel port série est utilisé à l'aide de print(Serial.list())
  String portName = Serial.list()[32];
- //print(Serial.list());
+ print(Serial.list());
  // On initialise la communication série, à la même vitesse qu'Arduino
  myPort = new Serial(this, portName, 115200);
  
@@ -193,15 +145,8 @@ public void setup(){
  // Loading a font for displaying text 
   f = loadFont("Courier-Bold-22.vlw"); 
   
-  aef = new Aef();
-  p = new Plot();
-  config = new StringDict();
-  loadConfig(cFN);  //Path to the config file should be "argv" or so !
-
-  for (int q = 0; q<175; q++){
-    myspeed [q] = 0; // initialise le tableau d'avance centrifuge pour éliminer les "scories" !!!
-  }
 }
+
 // Un message est reçu depuis l'Arduino
 void serialEvent(Serial p) {
  String message = myPort.readStringUntil(LF); // On lit le message reçu, jusqu'au saut de ligne
@@ -224,7 +169,7 @@ void serialEvent(Serial p) {
  myspeedRaw = speedRaw; 
  knob1.setValue(speedValue);
  // On convertit la valeur (String -> Int)
- float pressionRaw = Float.parseFloat(data[2]);
+ int pressionRaw = Integer.parseInt(data[2]);
  // On convertit la valeur (String -> Int)
  pressionValue = pressionRaw;
  mydepressionRaw = pressionRaw;
@@ -243,13 +188,6 @@ void serialEvent(Serial p) {
  int errorRaw = Integer.parseInt(data[5]);
  // On convertit la valeur (String -> Int)
  errordelay = errorRaw;
- 
- // On convertit la valeur (String -> Int)
- int depRaw = Integer.parseInt(data[6]);
- pressionadcValue = depRaw;
- mmhgValue = int((707 - pressionadcValue)/1.78); 
- //println(mmhgValue);
- 
  
  calculdegres();
  calculdegresavance();
@@ -288,12 +226,7 @@ void serialEvent(Serial p) {
 public void calculdegres(){
    usPerDegree = (NT / speedValue / float(Ncyl));  // 30000000 car tour allumeur et tour moteur = tour allumeur * 2
    //delayDegree = ((delayValue+dwellandcodetime) / float(delaydegValue))+advanceStatic ; // calcule le nombre de degrés d'avance finale 
-   if (stateCent == false ){
-   delayDegree = ((delayValue+dwellandcodetime -120) / usPerDegree)+advanceStatic ; // calcule le nombre de degrés d'avance finale
-   }
-  else{
-   delayDegree = ((delayValue+dwellandcodetime) / usPerDegree)+advanceStatic ; // calcule le nombre de degrés d'avance finale
-  } 
+   delayDegree = ((delayValue+dwellandcodetime) / usPerDegree)+advanceStatic ; // calcule le nombre de degrés d'avance finale 
    correcteddelayDegree = topSignal - delayDegree;
    //println(correcteddelayDegree);
    //println(usPerDegree);
@@ -317,7 +250,7 @@ public void calculerreurdelai(){
 
 public void storeavance(){
   int s = myspeedRaw/40;
-  float av = map(correcteddelayDegree, 0, 10, 0, 200);
+  int av = int(correcteddelayDegree * 1000);
   //print(s);print(",");
   //println(av);
   myspeed [s] = av;
@@ -327,24 +260,27 @@ public void storeavance(){
 
 public void drawmycentrifugalcurve(){
   for (int q = 1; q<175; q++){
+    int xav = q;
+    int lastxav = q-1;
+    int xavc = 390 + (q*2);
+    int lastxavc = 390 + ((q-1)/20);
+    int yav = (myspeed [q]/10);
+    int lastyav = (myspeed [q-1]/10);
+    int yavc = 650 - (yav/5);
+    int lastyavc = 650 - (lastyav);
     //println(myspeed [q]);
-    int lastxr = (q - 1)*2;
-    float lastyr = myspeed [q - 1];
-    int xr = q*2;
-    float yr = myspeed [q];    
-    if (stateCent == false ){
-    line(xcentOrigin+lastxr,ycentOrigin-20-lastyr,xcentOrigin+xr,ycentOrigin-20-yr); 
-    }
-    else {
     fill(0);
-    line(xcentOrigin+lastxr,ycentOrigin-lastyr,xcentOrigin+xr,ycentOrigin-yr);
-    }
+    line(xavc,yavc,xavc+1,yavc-1);
+    line(xavc-1,yavc-1,xavc,yavc);
+    //print(xavc);print(",");
+    //println(yavc);
+    //line(480,680,750,525);
   }
 }
 
 public void storedepression(){
-  int s = mmhgValue;
-  float dep = mydepressionRaw;
+  int s = mydepressionRaw;
+  int dep = s;
   //print(s);print(",");
   //println(av);
   mydepression [s] = dep;
@@ -353,15 +289,15 @@ public void storedepression(){
 }
 
 public void drawmydepressioncurve(){
-  for (int g = 1; g<300; g++){
+  for (int g = 1; g<16; g++){
     int xdep = g;
     int lastxdep = g-1;
-    int xdepc = xdepOrigin + g; // Origine du tableau en  = 960
-    int lastxdepc = xdepOrigin + (g-1); // Origine du tableau en  = 960
-    float ydep = mydepression [g];
-    float lastydep = mydepression [g-1];
-    float ydepc = ydepOrigin - (ydep*10);
-    float lastydepc = ydepOrigin - (lastydep*10);
+    int xdepc = 1035 + (g*9); // Origine du tableau en  = 960
+    int lastxdepc = 1035 + ((g-1)*9); // Origine du tableau en  = 960
+    int ydep = mydepression [g];
+    int lastydep = mydepression [g-1];
+    int ydepc = 650 - (ydep*10);
+    int lastydepc = 650 - (lastydep*10);
     //println(myspeed [q]);
     fill(0);
     line(lastxdepc,lastydepc,xdepc,ydepc);
@@ -383,17 +319,13 @@ public void selectcentrifugalcurve(){
      advanceCurve = loadStrings(nameCurve); 
      titleCurve = "Allumeur A4114A-SEV TC/TG"; 
      titleCurve2 = "    (M8N - N2 & N5)";
-     dwellandcodetime = 0;
-     stateCent = true;
      break;
    case 1: 
-     advanceStatic = 32.0; 
-     nameCurve = "M10S.txt";
+     advanceStatic = 10.5; 
+     nameCurve = "2156d.txt";
      advanceCurve = loadStrings(nameCurve); 
-     titleCurve = "Allumeur SEV pour M10S";
-     titleCurve2 = "    (     24BT     )";
-     dwellandcodetime = 120;
-     stateCent = false;
+     titleCurve = "Allumeur 2156D pour M5";
+     titleCurve2 = "    (     N2       )";
      break;
    case 2: 
      advanceStatic = 17.0;
@@ -401,7 +333,6 @@ public void selectcentrifugalcurve(){
      advanceCurve = loadStrings(nameCurve); 
      titleCurve = "    Allumeur A132-SEV"; 
      titleCurve2 = "    (M10S - N1 1965)";
-     stateCent = true;
      break;
    case 3: 
      advanceStatic = 17.0;
@@ -409,7 +340,6 @@ public void selectcentrifugalcurve(){
      advanceCurve = loadStrings(nameCurve); 
      titleCurve = "  Allumeur 525292 - SCD"; 
      titleCurve2 = "                   ";
-     stateCent = true;
      break;  
    }
   
@@ -420,19 +350,19 @@ public void selectcentrifugalcurve(){
 
 public void drawcentrifugalcurve(){
   fill(0,0,0);
-  rect(360,xcentOrigin,410,300); // Cadre noir du graphique d'avance centrifuge
+  rect(360,390,410,300); // Cadre noir du graphique d'avance centrifuge
   fill(255,255,204);
-  rect(370,400,xcentOrigin,280);  // Cadre beige du graphique d'avance centrifuge
+  rect(370,400,390,280);  // Cadre beige du graphique d'avance centrifuge
   fill(0);
   // Trace le cadrillage de l'avance centrifuge
-  for (int i = xcentOrigin; i < 741; i = i+50) 
+  for (int i = 390; i < 741; i = i+50) 
   {
-  line(i, 450, i, ycentOrigin); // ligne verticale
+  line(i, 450, i, 650); // ligne verticale
   
   }
-  for (int i = ycentOrigin; i > 449; i = i-40) 
+  for (int i = 650; i > 449; i = i-40) 
   {
-  line(xcentOrigin, i, 741, i); // ligne horizontale
+  line(390, i, 741, i); // ligne horizontale
   }
   
   textFont(f);
@@ -440,76 +370,54 @@ public void drawcentrifugalcurve(){
   text(titleCurve2,410,440);
   
   textFont(fg);
-  text(0,xcentOrigin-5,700);
-  text(500,xcentOrigin+30,ycentOrigin+20);
-  text(1000,xcentOrigin+80,ycentOrigin+20);
-  text(1500,xcentOrigin+130,ycentOrigin+20);
-  text(2000,xcentOrigin+180,ycentOrigin+20);
-  text(2500,xcentOrigin+230,ycentOrigin+20);
-  text(3000,xcentOrigin+280,ycentOrigin+20);
+  text(0,390-5,700);
+  text(500,390+30,670);
+  text(1000,390+80,670);
+  text(1500,390+130,670);
+  text(2000,390+180,670);
+  text(2500,390+230,670);
+  text(3000,390+280,670);
   
-  if (stateCent == false){
-  text(0,xcentOrigin-15,635);
-  text(1,xcentOrigin-15,615);
-  text(3,xcentOrigin-15,575);
-  text(5,xcentOrigin-15,535);
-  text(7,xcentOrigin-15,495);
-  }
-  else{
-  text(2,xcentOrigin-15,615);
-  text(4,xcentOrigin-15,575);
-  text(6,xcentOrigin-15,535);
-  text(8,xcentOrigin-15,495);
-  }
+  text(2,390-15,615);
+  text(4,390-15,575);
+  text(6,390-15,535);
+  text(8,390-15,495);
   
   textFont(fe);
-  text("T/min",xcentOrigin+330,ycentOrigin+20);
-  text("d°",xcentOrigin-15,450);
+  text("T/min",390+330,670);
+  text("d°",390-15,450);
   
   // Trace les bornes de l'avance centrifuge
-  for (int i = 2; i<=175; i++){
+  for (int i = 1; i<175; i++){
   String ligne = advanceCurve[i];
-  
   String[] cells = split(advanceCurve[i], ",");
+
   int speedData = Integer.parseInt(cells[0]);
   int timeDelay = Integer.parseInt(cells[1]);
-  
-  String[] lastcells = split(advanceCurve[i-1], ",");
-  int lastspeedData = Integer.parseInt(lastcells[0]);
-  int lasttimeDelay = Integer.parseInt(lastcells[1]);
   //int timeDegree = Integer.parseInt(cells[2]);
   float timeDegree = NT / speedData /float(Ncyl);
   float degreeData = (topSignal)-((timeDelay + dwellandcodetime)/timeDegree)-advanceStatic;
-  float lasttimeDegree = NT / lastspeedData /float(Ncyl);
-  float lastdegreeData = (topSignal)-((lasttimeDelay + dwellandcodetime)/lasttimeDegree)-advanceStatic;
   //print(speedData);
   //print(":");
-  //println(lastspeedData);
+  //println(degreeData);
   // Point d'origine pour les courbe (480,680)
-  
-   int xs = xcentOrigin + (speedData/20);
-   float yd = ycentOrigin - (degreeData*20);
+   int xs = 390 + (speedData/20);
+   
+   float yd = 650 - (degreeData*20);
    int ydInt = int(yd);
    
-   int lastxs = xcentOrigin + (lastspeedData/20);
-   float lastyd = ycentOrigin - (lastdegreeData*20);
-   int lastydInt = int(lastyd);
    fill(0,255,0);
    //line(xs,ydInt,xs+1,ydInt-1); // courbe cible d'origine
-   if (stateCent == false ){
-   line((xs),(ydInt-30),(lastxs),(lastydInt-30));
-   if (ydInt<650){
-   line((xs),(ydInt-10),(lastxs),(lastydInt-10));
-   }
-   }
-   else
-   {
-   line((xs-10),(ydInt-10),(lastxs-10),(lastydInt-10));
+   
+   line((xs*0.98),(ydInt*0.98),(xs*0.98)+1,(ydInt*0.98)-1);
    if (ydInt<638){
-   line((xs+10),(ydInt+10),(lastxs+10),(lastydInt+10));
-   } 
+   line((xs*1.02),(ydInt*1.02),(xs*1.02)+1,(ydInt*1.02)-1);
    }
+   //print(xs);
+   //print(":");
+   //println(ydInt);
   }
+  
   
 }
 
@@ -521,13 +429,13 @@ public void drawdepressioncurve(){
   rect(940,400,390,280); // Cadre beige du graphique d'avance dépression
   fill(0);
   // Trace le cadrillage de l'avance dépression
-  for (int i = xdepOrigin; i < 1311; i = i+50) 
+  for (int i = 960; i < 1311; i = i+50) 
   {
-  line(i, 450, i, ydepOrigin);// ligne verticale
+  line(i, 450, i, 650);// ligne verticale
   }
-  for (int i = ydepOrigin; i > 424; i = i-50) 
+  for (int i = 650; i > 424; i = i-50) 
   {
-  line(xdepOrigin, i, 1310, i); // ligne horizontale
+  line(960, i, 1310, i); // ligne horizontale
   }
   
   textFont(f);
@@ -535,21 +443,21 @@ public void drawdepressioncurve(){
   text("Capteur de dépression",990,430);
   
   textFont(fg);
-  text(0,xdepOrigin-5,ydepOrigin+20);
-  text(50,xdepOrigin+40,ydepOrigin+20);
-  text(100,xdepOrigin+85,ydepOrigin+20);
-  text(150,xdepOrigin+135,ydepOrigin+20);
-  text(200,xdepOrigin+185,ydepOrigin+20);
-  text(250,xdepOrigin+235,ydepOrigin+20);
-  text(300,xdepOrigin+285,ydepOrigin+20);
+  text(0,960-5,670);
+  text(50,960+40,670);
+  text(100,960+85,670);
+  text(150,960+135,670);
+  text(200,960+185,670);
+  text(250,960+235,670);
+  text(300,960+285,670);
   
-  text(5,xdepOrigin-15,605);
-  text(10,xdepOrigin-20,555);
-  text(15,xdepOrigin-20,505);
+  text(5,960-15,605);
+  text(10,960-20,555);
+  text(15,960-20,505);
  
   textFont(fe);
-  text("mmHg",xdepOrigin+330,ydepOrigin+20);
-  text("d°",xdepOrigin-15,450); 
+  text("mmHg",960+330,670);
+  text("d°",960-15,450); 
   
   // Trace les bornes de l'avance dépression
   for (int i = 0; i<12; i++){
@@ -558,8 +466,8 @@ public void drawdepressioncurve(){
   int depressionx = Integer.parseInt(cells[0]);
   int depressiony = Integer.parseInt(cells[1]);
     
-  mydepressionx[i][0] = xdepOrigin + depressionx;
-  mydepressiony[i][0] = ydepOrigin - depressiony;
+  mydepressionx[i][0] = 960 + depressionx;
+  mydepressiony[i][0] = 650 - depressiony;
   
   //print(mydepressionx[i][0]);
   //print(":");
@@ -581,66 +489,72 @@ public void drawdepressioncurve(){
     fill(255,0,0);
     
     //line(lastxd,lastyd,xd,yd); // courbe cible d'origine
-    line(lastxd-10,lastyd-10,xd-10,yd-10);
-    line(lastxd+10,lastyd+10,xd+10,yd+10);
+    line(lastxd*0.98,lastyd*0.98,xd*0.98,yd*0.98);
+    line(lastxd*1.02,lastyd*1.02,xd*1.02,yd*1.02);
     
     
   }
   
 }
 
-
-void loadConfig(String file){  
-    InputStream input;
-    
-  if (createInput(file) == null){  // If file not found, set some default values to start up
-    config.set("aefmespath","/home/dedessus/sketchbook/myproject/aecp_Duino_Nano/aef/");
-    saveConfig(file);  // create the file
-    return;            // that's all
-  }
-//  println("loadConfig");
-// populate the config dictionary
-  int i;
-  String items[];
-  String lines[] = loadStrings(file);  //Get all the lines of the file
-  items = new String[2];  // Two items per line: key and value
-  for (i = 0; i < lines.length; i++){  // for each line in lines
-    items = split(lines[i]," ");
-    if (items.length == 2) config.set(items[0],items[1]);  // else line is not interpretable
-  }
-/*  debug: show the content of config  
-  String[] k = config.keyArray();
-  for (i = 0; i < config.size(); i++){
-    println(k[i],config.get(k[i]));
-  } 
-*/  
-}
-
-void saveConfig(String file){
-//  println ("saveConfig");
-  int i;
-  String[] keyval;    // A key/value pair from the config dictionary
-  String[] k = config.keyArray();  // The keys
-//  println (k);
-  keyval = new String[config.size()];
-  for (i = 0; i < config.size(); i++) keyval[i] = k[i] + " " + config.get(k[i]);
-  saveStrings(file,keyval);
-}
-
-// G4P code for folder and file dialogs
-public void handleFileDialog() {
-  String fname;
-  boolean b;
+public void runclicked(){
+     Irpmmin = int(textfieldrpmmin2.getText());
+     Irpmmax = int(textfieldrpmmax2.getText());
+     println(Irpmmax);
+     while( runrpmmin < Irpmmin ){
+       runrpmmin = speedValue;
+        print(runrpmmin);
+        print(",");
+        println(Irpmmin);
+        textfieldrpmactual.setText(str(speedValue));
+        time = millis();
+        textfieldtimeactual.setText(str(time));         
+     }
+     timestart = millis();
+     println(timestart);
+     while( runrpmmax < Irpmmax ){
+       runrpmmax = speedValue;
+        print(runrpmmax);
+        print(",");
+        println(Irpmmax);         
+     }
+     timestop = millis();
+     println(timestop);
+     elapsedtime = timestop - timestart;
+     elapsedtimesec = elapsedtime/1000;
+     elapsedtimemsec = elapsedtime - (elapsedtimesec * 1000 );
+     textfieldelapsedtime3.setText(str(elapsedtimesec));
+     textfieldelapsedtime4.setText(str(elapsedtimemsec));
+     Irpmmin = 0;
+     runrpmmin =0;
+     Irpmmax = 0;
+     runrpmmax = 0;     
+   } 
+   
   
-    // Use file filter if possible
-  fname = G4P.selectInput("Select AEF");
- // println(fname);
-  if (fname != null) {
-    aef.setPath(fname);
-    //aef.loadMesure0();
+public void runfreeclicked(){
+  if (stateCheckbtnrun == true){
+   timestart = millis();
+   buttonrunfree.setTextBold();
+   buttonrunfree.setText("Stop");
+   stateCheckbtnrun = false; 
+   //println(stateCheckbtnrun);
+   textfieldrpmmin.setText(str(speedValue));
+   }
+    else{
+   timestop = millis();
+   buttonrunfree.setTextBold();
+   buttonrunfree.setText("Départ libre");
+   stateCheckbtnrun = true; 
+   //println(stateCheckbtnrun);
+   elapsedtime = timestop - timestart;
+   elapsedtimesec = elapsedtime/1000;
+   elapsedtimemsec = elapsedtime - (elapsedtimesec * 1000 );
+   textfieldelapsedtime1.setText(str(elapsedtimesec));
+   textfieldelapsedtime2.setText(str(elapsedtimemsec));
+   textfieldrpmmax.setText(str(speedValue)); 
   }
 }
-
 public void openhelpwindow(){
   window1 = new GWindow(this, "Aide à la sélection", 0, 0, 1350, 690, false, JAVA2D);
   window1.setActionOnClose(G4P.CLOSE_WINDOW);
@@ -690,7 +604,7 @@ public void openhelpwindow(){
 }
  
 public void recordwindow(){ 
-   window2 = new GWindow(this, "Aide à la sélection pour paramétrer sa courbe", 0, 0, 1350, 690, false, JAVA2D);
+  window2 = new GWindow(this, "Enregistrement", 0, 0, 1350, 690, false, JAVA2D);
   window2.setActionOnClose(G4P.CLOSE_WINDOW);
   window2.addDrawHandler(this, "win_draw1");
   textfieldrpmmin = new GTextField(window2.papplet, 1020, 50, 110, 20, G4P.SCROLLBARS_NONE);
@@ -725,7 +639,7 @@ public void recordwindow(){
   label45.setTextBold();
   label45.setOpaque(false);
   label46 = new GLabel(window2.papplet, 600, 80, 120, 20);
-  label46.setText("Temps interne");
+  label46.setText("Temps actuel");
   label46.setTextBold();
   label46.setOpaque(false);
   label47 = new GLabel(window2.papplet, 600, 110, 120, 20);
@@ -781,112 +695,10 @@ public void recordwindow(){
   label52.setText("ms");
   label52.setTextBold();
   label52.setOpaque(false);
-  label54 = new GLabel(window2.papplet, 870, 110, 30, 20);
-  label54.setText("ms");
-  label54.setTextBold();
-  label54.setOpaque(false);
-  buttonsave = new GButton(window2.papplet, 1170, 50, 100, 20);
-  buttonsave.setText("Sauvegarder");
-  buttonsave.setTextBold();
-  buttonsave.addEventHandler(this, "buttonsave_click1");
-  buttonload = new GButton(window2.papplet, 1170, 80, 100, 20);
-  buttonload.setText("Historique");
-  buttonload.setTextBold();
-  buttonload.addEventHandler(this, "buttonload_click1");
-  label55 = new GLabel(window2.papplet, 920, 110, 100, 20);
-  label55.setText("Date & heure");
-  label55.setTextBold();
-  label55.setOpaque(false);
-  tfd = new GTextField(window2.papplet, 1030, 110, 20, 20, G4P.SCROLLBARS_NONE);
-  tfd.setOpaque(true);
-  tfd.addEventHandler(this, "tfd_change1");
-  tfm = new GTextField(window2.papplet, 1060, 110, 20, 20, G4P.SCROLLBARS_NONE);
-  tfm.setOpaque(true);
-  tfm.addEventHandler(this, "tfm_change1");
-  tfy = new GTextField(window2.papplet, 1090, 110, 40, 20, G4P.SCROLLBARS_NONE);
-  tfy.setOpaque(true);
-  tfy.addEventHandler(this, "tfy_change1");
-  tfh = new GTextField(window2.papplet, 1160, 110, 30, 20, G4P.SCROLLBARS_NONE);
-  tfh.setOpaque(true);
-  tfh.addEventHandler(this, "tfh_change1");
-  tfmin = new GTextField(window2.papplet, 1200, 110, 30, 20, G4P.SCROLLBARS_NONE);
-  tfmin.setOpaque(true);
-  tfmin.addEventHandler(this, "tfmin_change1");
-  tfs = new GTextField(window2.papplet, 1240, 110, 30, 20, G4P.SCROLLBARS_NONE);
-  tfs.setOpaque(true);
-  tfs.addEventHandler(this, "tfs_change1");
-  buttonpause = new GButton(window2.papplet, 1170, 20, 100, 20);
-  buttonpause.setText("Pause");
-  buttonpause.setTextBold();
-  buttonpause.addEventHandler(this, "buttonpause_click1");
-  buttonc1 = new GButton(window2.papplet, 1300, 180, 30, 30);
-  buttonc1.setText("+");
-  buttonc1.setTextBold();
-  buttonc1.addEventHandler(this, "buttonc1_click1");
-  buttonc2 = new GButton(window2.papplet, 1300, 220, 30, 30);
-  buttonc2.setText("+");
-  buttonc2.setTextBold();
-  buttonc2.setLocalColorScheme(GCScheme.GREEN_SCHEME);
-  buttonc2.addEventHandler(this, "buttonc2_click1");
-  buttonc3 = new GButton(window2.papplet, 1300, 260, 30, 30);
-  buttonc3.setText("+");
-  buttonc3.setTextBold();
-  buttonc3.setLocalColorScheme(GCScheme.RED_SCHEME);
-  buttonc3.addEventHandler(this, "buttonc3_click1");
-  buttonc4 = new GButton(window2.papplet, 1300, 300, 30, 30);
-  buttonc4.setText("+");
-  buttonc4.setTextBold();
-  buttonc4.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
-  buttonc4.addEventHandler(this, "buttonc4_click1");
-  
-}
-
-public void saveorselectwindow(){ 
-  window3 = new GWindow(this, "Sauvegarde et historique", 0, 0, 370, 150, false, JAVA2D);
-  window3.setActionOnClose(G4P.CLOSE_WINDOW);
-  window3.addDrawHandler(this, "win_draw3");
-  label56 = new GLabel(window3.papplet, 10, 30, 140, 20);
-  label56.setText("Nom de la courbe");
-  label56.setTextBold();
-  label56.setOpaque(false);
-  tfsname = new GTextField(window3.papplet, 160, 30, 200, 20, G4P.SCROLLBARS_NONE);
-  tfsname.setPromptText("Nom de votre courbe");
-  tfsname.setOpaque(true);
-  tfsname.addEventHandler(this, "tfsname_change1");
-  label57 = new GLabel(window3.papplet, 10, 60, 140, 20);
-  label57.setText("Date & heure");
-  label57.setTextBold();
-  label57.setOpaque(false);
-  tfd2 = new GTextField(window3.papplet, 160, 60, 20, 20, G4P.SCROLLBARS_NONE);
-  tfd2.setOpaque(true);
-  tfd2.addEventHandler(this, "tfd2_change1");
-  tfm2 = new GTextField(window3.papplet, 190, 60, 20, 20, G4P.SCROLLBARS_NONE);
-  tfm2.setOpaque(true);
-  tfm2.addEventHandler(this, "tfm2_change1");
-  tfy2 = new GTextField(window3.papplet, 220, 60, 40, 20, G4P.SCROLLBARS_NONE);
-  tfy2.setOpaque(true);
-  tfy2.addEventHandler(this, "tfy2_change1");
-  tfh2 = new GTextField(window3.papplet, 280, 60, 20, 20, G4P.SCROLLBARS_NONE);
-  tfh2.setOpaque(true);
-  tfh2.addEventHandler(this, "tfh2_change1");
-  tfmin2 = new GTextField(window3.papplet, 310, 60, 20, 20, G4P.SCROLLBARS_NONE);
-  tfmin2.setOpaque(true);
-  tfmin2.addEventHandler(this, "tfmin2_change1");
-  tfs2 = new GTextField(window3.papplet, 340, 60, 20, 20, G4P.SCROLLBARS_NONE);
-  tfs2.setOpaque(true);
-  tfs2.addEventHandler(this, "tfs2_change1");
-  buttonok = new GButton(window3.papplet, 135, 101, 100, 30);
-  buttonok.setText("Enregistrer");
-  buttonok.setTextBold();
-  buttonok.addEventHandler(this, "buttonok_click1");
-  label58 = new GLabel(window3.papplet, 300, 60, 10, 20);
-  label58.setText(":");
-  label58.setTextBold();
-  label58.setOpaque(false);
-  label59 = new GLabel(window3.papplet, 330, 60, 10, 20);
-  label59.setText(":");
-  label59.setTextBold();
-  label59.setOpaque(false);
+  label53 = new GLabel(window2.papplet, 870, 110, 30, 20);
+  label53.setText("ms");
+  label53.setTextBold();
+  label53.setOpaque(false);  
 }
  
 public void draw(){
@@ -920,7 +732,6 @@ public void draw(){
   
   fill(255,0,0);
   arc(210, 220, 339, 339, -PI/4.6, 0);  // upper half of circle for speed counter
-  arc(890, 200, 240, 240, -0.85, -0.80);  // upper half of circle for resultant advance
   
   textFont(f);
   fill(255,0,0);
