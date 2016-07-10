@@ -388,10 +388,10 @@ public void selectcentrifugalcurve(){
      break;
    case 1: 
      advanceStatic = 32.0; 
-     nameCurve = "M10S.txt";
+     nameCurve = "M8S.txt";
      advanceCurve = loadStrings(nameCurve); 
-     titleCurve = "Allumeur SEV pour M10S";
-     titleCurve2 = "    (     24BT     )";
+     titleCurve = "Allumeur SEV pour M8S";
+     titleCurve2 = "    (     24CT     )";
      dwellandcodetime = 120;
      stateCent = false;
      break;
