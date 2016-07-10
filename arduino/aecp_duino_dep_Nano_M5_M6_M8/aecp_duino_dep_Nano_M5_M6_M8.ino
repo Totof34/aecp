@@ -72,6 +72,7 @@ const int Bob1 = 8;    //Sortie D8 vers bobine1
 const int Bob2 = 4;    //Sortie D4 vers bobine2
 const int Cible = 2;  //Entrée sur D2 du capteur, R PullUp et interrupt
 const int Pot = A4;   //Entrée analogique sur A4 pour potard de changement de courbes. R PullUp
+const int Led = 13; //Sortie D13 avec la led built-in pour caller le disque par rapport au capteur 
 int unsigned long D = 0;  //Delai en µs à attendre après la cible pour l'étincelle
 int unsigned long Ddep = 0;
 int unsigned long Dsum = 0;
@@ -106,6 +107,7 @@ int unsigned long Tdem  = 0;  //Periode correspondante à Ndem,forcée pour le p
 int Mot_OFF = 0;//Sera 1 si moteur detecté arrété par l'isr_GestionIbob()
 
 float uspardegre = 0;
+int Dep = 0;
 float Degdep = 0;
 int unsigned long Vitesse  = 0;  //vitesse en cours
 int unsigned long Delaideg  = 0;  //µs/deg pour la dépression
@@ -286,6 +288,7 @@ void setup()//////////////////while (1); delay(1000);//////////////////////////
   ADCSRA |= PS_64;    
   // set our own prescaler to 64 
   Init(); // Executée une fois au demarrage et à chaque changement de courbe
+  pinMode(Led, OUTPUT); // pour signaler le calage du capteur lors de la mise au point
 }
 
 
@@ -296,7 +299,9 @@ void loop()   /////////////////////while (1); delay(1000);/////////////////
  while (digitalRead(Cible) == !CaptOn); //Attendre front actif de la cible
   T = micros() - prec_H;    //front actif, arrivé calculer T
   prec_H = micros(); //heure du front actuel qui deviendra le front precedent
-  Degdep = map((analogRead(A0)),330,565,150,0);  //Mesure la dépression
+  //digitalWrite(Led,HIGH); // Décommenter cette ligne pour caller le capteur , voir plus loin la 2ème ligne 323
+  Dep = analogRead(A0);
+  Degdep = map(Dep,330,565,150,0);  //Mesure la dépression
   Degdep = Degdep/10;
   //int Degdepcal = analogRead(A0); Pour calibrage du capteur MV3P5050
     if (Degdep < 0){ Degdep = 0; }
@@ -315,6 +320,7 @@ void loop()   /////////////////////while (1); delay(1000);/////////////////
   while (digitalRead(Cible) == CaptOn); //Attendre si la cible encore active
   
   Tempsecoule = Stop_temps - prec_H ;
+  //digitalWrite(Led,LOW);
 
   Serial.print("S");
   Serial.print(",");
@@ -327,6 +333,8 @@ void loop()   /////////////////////while (1); delay(1000);/////////////////
   Serial.print(Delaideg);
   Serial.print(",");
   Serial.print(Tempsecoule);
+  Serial.print(",");
+  Serial.print(Dep);
   Serial.println(",");
 
    

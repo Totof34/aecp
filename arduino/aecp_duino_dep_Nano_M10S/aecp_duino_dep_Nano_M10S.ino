@@ -31,11 +31,11 @@ int ylow = 0;// valeur de la limite en degré basse soit 0 degré
 //Le dernier N fixe la ligne rouge, c'est à dire la coupure de l'allumage
 int Na[] = {0,1240,2050,2500,3400,4100,4200,7000, 0};
 //degrés d'avance vilebrequin correspondant:
-int Anga[] = {0,0,2,3,5,7,8,8, 0};
+int Anga[] = {0,0,0,0,0,0,0,0,0};
 
 int Ncyl = 2;           //Nombre de cylindres, moteur Panhard
 const int AngleCapteur = 90; //le capteur(Hall) est 45° avant le PMH habituellement
-const int Avancestatique = 17;
+const int Avancestatique = 32;
 const int CaptOn = 0;  //CapteurOn = 1 déclenche sur front montant (capteur saturé)
 //CapteurOn = 0 déclenche sur front descendant (capteur non saturé).Voir fin du listing
 //**********************************************************************************
@@ -50,16 +50,16 @@ const int Dwell = 1; //1 pour alimenter la bobine en permanence sauf 1ms/cycle.E
 //avec l'entrée configurée en Input Pull-up
 //*******//*********Courbe   b
 int Nb[] = {0,1600,4300,7000, 0};   //Courbe b
-int Angb[] = {0,0,7,7, 0};
+int Angb[] = {0,0,3,3, 0};
 //*******//*********Courbe   c
 int Nc[] = {0,600,4000,7000, 0};    //Courbe c
-int Angc[] = {0,0,9,9, 0};
+int Angc[] = {0,0,5,5, 0};
 //*******//*********Courbe   d
 int Nd[] = {0,1600,4000,7000, 0};   //Courbe d
-int Angd[] = {0,0,9,9, 0};
+int Angd[] = {0,0,5,5, 0};
 //*******//*********Courbe   e
 int Ne[] = {0,600,4300,7000, 0};    //Courbe e
-int Ange[] = {0,0,7,7, 0};
+int Ange[] = {0,0,3,3, 0};
 //**********************************************************************************
 //************Ces 4 valeurs sont eventuellement modifiables*****************
 //Ce sont Nplancher, trech , Dsecu et delAv
@@ -73,6 +73,7 @@ const int Bob2 = 4;    //Sortie D4 vers bobine2
 const int Cible = 2;  //Entrée sur D2 du capteur, R PullUp et interrupt
 const int Pot1 = A4;   //Entrée analogique sur A4 pour potard de changement de courbes d'avance centrifuge. R PullUp
 const int Pot2 = A5;   //Entrée analogique sur A5 pour potard de changement de courbes d'avance dépression. R PullUp
+const int Led = 13; //Sortie D13 avec la led built-in pour caller le disque par rapport au capteur
 int unsigned long D = 0;  //Delai en µs à attendre après la cible pour l'étincelle
 int unsigned long Ddep = 0;
 int unsigned long Dsum = 0;
@@ -337,6 +338,7 @@ void setup()//////////////////while (1); delay(1000);//////////////////////////
   ADCSRA |= PS_64;    
   // set our own prescaler to 64 
   Init(); // Executée une fois au demarrage et à chaque changement de courbe
+  pinMode(Led, OUTPUT); // pour signaler le calage du capteur lors de la mise au point
 }
 
 
@@ -347,6 +349,7 @@ void loop()   /////////////////////while (1); delay(1000);/////////////////
  while (digitalRead(Cible) == !CaptOn); //Attendre front actif de la cible
   T = micros() - prec_H;    //front actif, arrivé calculer T
   prec_H = micros(); //heure du front actuel qui deviendra le front precedent
+  digitalWrite(Led,HIGH); // Décommenter cette ligne pour caller le capteur , voir plus loin la 2ème ligne 373
   Dep = analogRead(A0);
   Degdep = map(Dep,xhigh,xlow,yhigh,ylow);  //Mesure la dépression
   Degdep = Degdep/10;
@@ -367,7 +370,8 @@ void loop()   /////////////////////while (1); delay(1000);/////////////////
   while (digitalRead(Cible) == CaptOn); //Attendre si la cible encore active
   
   Tempsecoule = Stop_temps - prec_H ;
-
+  digitalWrite(Led,LOW);
+  
   Serial.print("S");
   Serial.print(",");
   Serial.print(Vitesse);
