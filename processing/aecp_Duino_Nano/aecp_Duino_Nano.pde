@@ -23,6 +23,7 @@ int topSignal = 90; // Une variable pour stocker la position du capteur
 int NT = 60000000; // NT = 120000000/nombre de cylindres
 int Ncyl = 360; // Ncyl = 720/nombre de cylindres 360° pour 2 et 180° pour 4 cylindres , temps entre 2 tops
 int dwellandcodetime = 0;
+int dwellandcodetime2 = 0;
 float usPerDegree;
 float delayDegree;
 float advanceStatic;
@@ -289,7 +290,7 @@ public void calculdegres(){
    usPerDegree = (NT / speedValue / float(Ncyl));  // 30000000 car tour allumeur et tour moteur = tour allumeur * 2
    //delayDegree = ((delayValue+dwellandcodetime) / float(delaydegValue))+advanceStatic ; // calcule le nombre de degrés d'avance finale 
    if (stateCent == false ){
-   delayDegree = ((delayValue+dwellandcodetime -120) / usPerDegree)+advanceStatic ; // calcule le nombre de degrés d'avance finale
+   delayDegree = ((delayValue+dwellandcodetime) / usPerDegree)+advanceStatic ; // calcule le nombre de degrés d'avance finale
    }
   else{
    delayDegree = ((delayValue+dwellandcodetime) / usPerDegree)+advanceStatic ; // calcule le nombre de degrés d'avance finale
@@ -317,7 +318,13 @@ public void calculerreurdelai(){
 
 public void storeavance(){
   int s = myspeedRaw/40;
-  float av = map(correcteddelayDegree, 0, 10, 0, 200);
+  float av = 0;
+  if (stateCent == false){
+  av = map(correcteddelayDegree, 0, 10, 0, 200);
+  }
+  else {
+  av = map(correcteddelayDegree, 0, 20, 0, 200);  
+  }
   //print(s);print(",");
   //println(av);
   myspeed [s] = av;
@@ -383,7 +390,7 @@ public void selectcentrifugalcurve(){
      advanceCurve = loadStrings(nameCurve); 
      titleCurve = "Allumeur A4114A-SEV TC/TG"; 
      titleCurve2 = "    (M8N - N2 & N5)";
-     dwellandcodetime = 0;
+     dwellandcodetime2 = 0;
      stateCent = true;
      break;
    case 1: 
@@ -392,7 +399,7 @@ public void selectcentrifugalcurve(){
      advanceCurve = loadStrings(nameCurve); 
      titleCurve = "Allumeur SEV pour M8S";
      titleCurve2 = "    (     24CT     )";
-     dwellandcodetime = 120;
+     dwellandcodetime2 = 120;
      stateCent = false;
      break;
    case 2: 
@@ -456,10 +463,10 @@ public void drawcentrifugalcurve(){
   text(7,xcentOrigin-15,495);
   }
   else{
-  text(2,xcentOrigin-15,615);
-  text(4,xcentOrigin-15,575);
-  text(6,xcentOrigin-15,535);
-  text(8,xcentOrigin-15,495);
+  text(4,xcentOrigin-15,615);
+  text(8,xcentOrigin-15,575);
+  text(12,xcentOrigin-20,535);
+  text(16,xcentOrigin-20,495);
   }
   
   textFont(fe);
@@ -479,20 +486,20 @@ public void drawcentrifugalcurve(){
   int lasttimeDelay = Integer.parseInt(lastcells[1]);
   //int timeDegree = Integer.parseInt(cells[2]);
   float timeDegree = NT / speedData /float(Ncyl);
-  float degreeData = (topSignal)-((timeDelay + dwellandcodetime)/timeDegree)-advanceStatic;
+  float degreeData = (topSignal)-((timeDelay + dwellandcodetime2)/timeDegree)-advanceStatic;
   float lasttimeDegree = NT / lastspeedData /float(Ncyl);
-  float lastdegreeData = (topSignal)-((lasttimeDelay + dwellandcodetime)/lasttimeDegree)-advanceStatic;
+  float lastdegreeData = (topSignal)-((lasttimeDelay + dwellandcodetime2)/lasttimeDegree)-advanceStatic;
   //print(speedData);
   //print(":");
   //println(lastspeedData);
   // Point d'origine pour les courbe (480,680)
   
    int xs = xcentOrigin + (speedData/20);
-   float yd = ycentOrigin - (degreeData*20);
+   float yd = ycentOrigin - (degreeData*10);
    int ydInt = int(yd);
    
    int lastxs = xcentOrigin + (lastspeedData/20);
-   float lastyd = ycentOrigin - (lastdegreeData*20);
+   float lastyd = ycentOrigin - (lastdegreeData*10);
    int lastydInt = int(lastyd);
    fill(0,255,0);
    //line(xs,ydInt,xs+1,ydInt-1); // courbe cible d'origine
@@ -919,8 +926,8 @@ public void draw(){
   ellipse(210,220,340,340);
   
   fill(255,0,0);
-  arc(210, 220, 339, 339, -PI/4.6, 0);  // upper half of circle for speed counter
-  arc(890, 200, 240, 240, -0.85, -0.80);  // upper half of circle for resultant advance
+  arc(210, 220, 339, 339, -PI/4.6, 0);  // Zone rouge du compteur T/min
+  arc(890, 200, 240, 240, -1.58, -1.53);  // Repère rouge qui marque les 33° de l'avance centrifuge et statique soit 17 + 16
   
   textFont(f);
   fill(255,0,0);

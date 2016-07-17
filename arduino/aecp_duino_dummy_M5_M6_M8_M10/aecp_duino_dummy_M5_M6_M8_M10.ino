@@ -90,7 +90,6 @@ int unsigned long Davant_rech = 0;  //Delai en µs après etincelle pour demarre
 int unsigned long Tprec  = 0;//Periode precedant la T en cours, pour calcul de Drech
 int unsigned long prec_H  = 0;  //Heure du front precedent en µs
 int unsigned long T  = 0;  //Periode en cours
-int unsigned long Tant  = 0;  //Periode en cours précédente sauvée en cas de T < Tlim
 int N1  = 0;  //Couple N,A de debut d'un segment
 int Ang1  = 0; // Car A1 reservé pour entrée analogique!
 int N2  = 0; //Couple N,A de fin de segment
@@ -297,60 +296,81 @@ void setup()//////////////////while (1); delay(1000);//////////////////////////
 }
 
 
+void editcourbe(){
+  for(int i = 0; i < 176; i++)
+    {
+    T = NT/(i*40) ;
+    uspardegre = (T/float(AngleCibles));
+    CalcD();
+            
+    Serial.print(i*40);
+    Serial.print(",");
+    Serial.print(D);
+    Serial.print(",");
+    Serial.println(uspardegre,0);
+    }
+}
+
+void demo(){
+  for(int i = 1; i < 176; i++){
+    T = NT/(i*40) ;
+    uspardegre = (T/float(AngleCibles));
+    CalcD();
+    Dep = map((analogRead(A1)),275,495,15,0);  //Mesure la dépression
+    if (Dep < 0){ Dep = 0; }
+    else if (Dep > 15){ Dep = 15; }
+    else ;
+    
+    Serial.print("S");
+    Serial.print(",");
+    Serial.print(i*40);
+    Serial.print(",");
+    Serial.print(Dep);
+    Serial.print(",");
+    Serial.print(D);
+    Serial.print(",");
+    Serial.print(uspardegre,0);
+    Serial.print(",");
+    Serial.print("0");
+    Serial.print(",");
+    Serial.print("0");
+    Serial.println(",");
+    delay(100);
+  }
+  for(int i = 174; i > 0; i--){
+    T = NT/(i*40) ;
+    uspardegre = (T/float(AngleCibles));
+    CalcD();
+    Dep = map((analogRead(A1)),275,495,15,0);  //Mesure la dépression
+    if (Dep < 0){ Dep = 0; }
+    else if (Dep > 15){ Dep = 15; }
+    else ;
+    
+    Serial.print("S");
+    Serial.print(",");
+    Serial.print(i*40);
+    Serial.print(",");
+    Serial.print(Dep);
+    Serial.print(",");
+    Serial.print(D);
+    Serial.print(",");
+    Serial.print(uspardegre,0);
+    Serial.print(",");
+    Serial.print("0");
+    Serial.print(",");
+    Serial.print("0");
+    Serial.println(",");
+    delay(100);
+  }
+}
 ///////////////////////////////////////////////////////////////////////////
 void loop()   /////////////////////while (1); delay(1000);/////////////////
 ////////////////////////////////////////////////////////////////////////////
 { 
- while (digitalRead(Cible) == !CaptOn); //Attendre front actif de la cible
-  T = micros() - prec_H;    //front actif, arrivé calculer T
-  prec_H = micros(); //heure du front actuel qui deviendra le front precedent
-  //digitalWrite(Led,HIGH); // Décommenter cette ligne pour caller le capteur , voir plus loin la 2ème ligne 323
-  Dep = analogRead(A0);
-  Degdep = map(Dep,330,565,150,0);  //Mesure la dépression
-  Degdep = Degdep/10;
-  //int Degdepcal = analogRead(A0); Pour calibrage du capteur MV3P5050
-    if (Degdep < 0){ Degdep = 0; }
-    else if (Degdep > 15){ Degdep = 15; }
-    else ;
-  Vitesse = NT/T;
-  Delaideg = NT / Vitesse /float(AngleCibles);
-  if ( Mot_OFF == 1 ) {
-    Mot_OFF = 0;  //Demarrage:premier front de capteur, forcer T = Tdem
-    T = Tdem;
-  }
-  if (T > Tlim)     //Sous la ligne rouge?
-  { CalcD(); // Top();  //Oui
-    Etincelle();
-  }
-  if (T < Tlim)     //Au dessus de la ligne rouge?
-  { 
-    T = Tant; // fige la vitesse sous 7000 T/min ainsi que le délai
-    CalcD(); // Top();  //Oui
-    Etincelle();
-    Vitesse = NT/Tant;
-  }
-  while (digitalRead(Cible) == CaptOn); //Attendre si la cible encore active
-  
-  Tempsecoule = Stop_temps - prec_H ;
-  Tant = T; // Sauve la valeur de T en cas de perte d'info du capteur
-  //digitalWrite(Led,LOW);
 
-  Serial.print("S");
-  Serial.print(",");
-  Serial.print(Vitesse);
-  Serial.print(",");
-  Serial.print(Degdep,1);
-  Serial.print(",");
-  Serial.print(D);
-  Serial.print(",");
-  Serial.print(Delaideg);
-  Serial.print(",");
-  Serial.print(Tempsecoule);
-  Serial.print(",");
-  Serial.print(Dep);
-  Serial.println(",");
-
-   
+   editcourbe();
+       
+   //demo();
 }
 ////////////////DEBUGGING////////////////////////
 //Voir les macros ps ()à et pc() en début de listing

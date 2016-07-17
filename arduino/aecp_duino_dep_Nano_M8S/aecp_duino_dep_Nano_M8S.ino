@@ -50,16 +50,16 @@ const int Dwell = 1; //1 pour alimenter la bobine en permanence sauf 1ms/cycle.E
 //avec l'entrée configurée en Input Pull-up
 //*******//*********Courbe   b
 int Nb[] = {0,1600,4300,7000, 0};   //Courbe b
-int Angb[] = {0,0,3,3, 0};
+int Angb[] = {0,0,6,6, 0};
 //*******//*********Courbe   c
 int Nc[] = {0,600,4000,7000, 0};    //Courbe c
-int Angc[] = {0,0,5,5, 0};
+int Angc[] = {0,0,10,10, 0};
 //*******//*********Courbe   d
 int Nd[] = {0,1600,4000,7000, 0};   //Courbe d
-int Angd[] = {0,0,5,5, 0};
+int Angd[] = {0,0,10,10, 0};
 //*******//*********Courbe   e
 int Ne[] = {0,600,4300,7000, 0};    //Courbe e
-int Ange[] = {0,0,3,3, 0};
+int Ange[] = {0,0,6,6, 0};
 //**********************************************************************************
 //************Ces 4 valeurs sont eventuellement modifiables*****************
 //Ce sont Nplancher, trech , Dsecu et delAv
@@ -88,6 +88,7 @@ int unsigned long Davant_rech = 0;  //Delai en µs après etincelle pour demarre
 int unsigned long Tprec  = 0;//Periode precedant la T en cours, pour calcul de Drech
 int unsigned long prec_H  = 0;  //Heure du front precedent en µs
 int unsigned long T  = 0;  //Periode en cours
+int unsigned long Tant  = 0;  //Periode en cours précédente sauvée en cas de T < Tlim
 int N1  = 0;  //Couple N,A de debut d'un segment
 int Ang1  = 0; // Car A1 reservé pour entrée analogique!
 int N2  = 0; //Couple N,A de fin de segment
@@ -349,7 +350,7 @@ void loop()   /////////////////////while (1); delay(1000);/////////////////
  while (digitalRead(Cible) == !CaptOn); //Attendre front actif de la cible
   T = micros() - prec_H;    //front actif, arrivé calculer T
   prec_H = micros(); //heure du front actuel qui deviendra le front precedent
-  digitalWrite(Led,HIGH); // Décommenter cette ligne pour caller le capteur , voir plus loin la 2ème ligne 373
+  //digitalWrite(Led,HIGH); // Décommenter cette ligne pour caller le capteur , voir plus loin la 2ème ligne 373
   Dep = analogRead(A0);
   Degdep = map(Dep,xhigh,xlow,yhigh,ylow);  //Mesure la dépression
   Degdep = Degdep/10;
@@ -367,10 +368,18 @@ void loop()   /////////////////////while (1); delay(1000);/////////////////
   { CalcD(); // Top();  //Oui
     Etincelle();
   }
+  if (T < Tlim)     //Au dessus de la ligne rouge?
+  { 
+    T = Tant; // fige la vitesse sous 7000 T/min ainsi que le délai
+    CalcD(); // Top();  //Oui
+    Etincelle();
+    Vitesse = NT/Tant;
+  }
   while (digitalRead(Cible) == CaptOn); //Attendre si la cible encore active
   
   Tempsecoule = Stop_temps - prec_H ;
-  digitalWrite(Led,LOW);
+  Tant = T; // Sauve la valeur de T en cas de perte d'info du capteur
+  //digitalWrite(Led,LOW);
   
   Serial.print("S");
   Serial.print(",");

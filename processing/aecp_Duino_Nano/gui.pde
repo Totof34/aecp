@@ -299,9 +299,9 @@ synchronized public void win_draw1(GWinApplet appc, GWinData data) { //_CODE_:wi
   appc.rect(40,180,1250,150); // premier cadre gris 
   appc.rect(40,360,1250,140); // deuxième cadre gris
   appc.rect(40,530,1250,120); // troisième cadre gris
-  yrpmPos = map(speedValue, 0, 7000, 0, 140);
-  ycentPos = map(correcteddelayDegree, 0, 10, 0, 140);
-  ydepPos = map(pressionValue, 0, 15, 0, 120);
+  yrpmPos = map(speedValue, 0, 7000, 0, 140); // map la valeur de RPM
+  ycentPos = map(correcteddelayDegree, 0, 20, 0, 140); // map la valeuur d'avance centrifuge
+  ydepPos = map(pressionValue, 0, 20, 0, 120); // map la valeur d'avance dépression
   // trace les lignes rpm, cent et dep
  
   for (int i = 1; i<=xrpmPos; i++){
@@ -361,10 +361,10 @@ synchronized public void win_draw1(GWinApplet appc, GWinData data) { //_CODE_:wi
   appc.textFont(fg3);
   appc.fill(0,0,0,200);
   appc.text(0,xrocent-15,yrocent);
-  appc.text(2,xrocent-15,yrocent-28);
-  appc.text(4,xrocent-15,yrocent-56);
-  appc.text(6,xrocent-15,yrocent-84);
-  appc.text(8,xrocent-15,yrocent-112);
+  appc.text(4,xrocent-15,yrocent-28);
+  appc.text(8,xrocent-15,yrocent-56);
+  appc.text(12,xrocent-25,yrocent-84);
+  appc.text(16,xrocent-25,yrocent-112);
   
   for (int i = 1; i<=xrpmPos; i++){
     int lastxd = i - 1;
@@ -390,10 +390,10 @@ synchronized public void win_draw1(GWinApplet appc, GWinData data) { //_CODE_:wi
   appc.textFont(fg3);
   appc.fill(0,0,0,200);
   appc.text(0,xrodep-15,yrodep);
-  appc.text(3,xrodep-15,yrodep-24);
-  appc.text(6,xrodep-15,yrodep-48);
-  appc.text(9,xrodep-15,yrodep-72);
-  appc.text(12,xrodep-25,yrodep-96);
+  appc.text(4,xrodep-15,yrodep-24);
+  appc.text(8,xrodep-15,yrodep-48);
+  appc.text(12,xrodep-25,yrodep-72);
+  appc.text(16,xrodep-25,yrodep-96);
   if (stateC1 == true){
      for (int i = 2; i<=1240; i++){
       int lastxr = i - 1;
@@ -404,14 +404,14 @@ synchronized public void win_draw1(GWinApplet appc, GWinData data) { //_CODE_:wi
       appc.stroke(blC);
       appc.line(xrorpm+lastxr,yrorpm-lastyr,xrorpm+xr,yrorpm-yr);
       int lastxc = i -1;
-      float lastyc = map(records1 [i-1][1], 0, 10, 0, 140);
+      float lastyc = map(records1 [i-1][1], 0, 20, 0, 140);
       int xc = i;
-      float yc = map(records1 [i][1], 0, 10, 0, 140);    
+      float yc = map(records1 [i][1], 0, 20, 0, 140);    
       appc.line(xrocent+lastxc,yrocent-lastyc,xrocent+xc,yrocent-yc);
       int lastxd = i - 1;
-      float lastyd = map(records1 [i-1][2], 0, 15, 0, 120);
+      float lastyd = map(records1 [i-1][2], 0, 20, 0, 120);
       int xd = i;
-      float yd = map(records1 [i-1][2], 0, 15, 0, 120);   
+      float yd = map(records1 [i-1][2], 0, 20, 0, 120);   
       appc.line(xrodep+lastxd,yrodep-lastyd,xrodep+xd,yrodep-yd);
       appc.stroke(0,0,0);
     }
@@ -427,14 +427,14 @@ synchronized public void win_draw1(GWinApplet appc, GWinData data) { //_CODE_:wi
       appc.stroke(veC);
       appc.line(xrorpm+lastxr,yrorpm-lastyr,xrorpm+xr,yrorpm-yr);
       int lastxc = i -1;
-      float lastyc = map(records2 [i-1][1], 0, 10, 0, 140);
+      float lastyc = map(records2 [i-1][1], 0, 20, 0, 140);
       int xc = i;
-      float yc = map(records2 [i][1], 0, 10, 0, 140);    
+      float yc = map(records2 [i][1], 0, 20, 0, 140);    
       appc.line(xrocent+lastxc,yrocent-lastyc,xrocent+xc,yrocent-yc);
       int lastxd = i - 1;
-      float lastyd = map(records2 [i-1][2], 0, 15, 0, 120);
+      float lastyd = map(records2 [i-1][2], 0, 20, 0, 120);
       int xd = i;
-      float yd = map(records2 [i-1][2], 0, 15, 0, 120);   
+      float yd = map(records2 [i-1][2], 0, 20, 0, 120);   
       appc.line(xrodep+lastxd,yrodep-lastyd,xrodep+xd,yrodep-yd);
       appc.stroke(0,0,0);
     }
@@ -449,14 +449,14 @@ synchronized public void win_draw1(GWinApplet appc, GWinData data) { //_CODE_:wi
       appc.stroke(reC);
       appc.line(xrorpm+lastxr,yrorpm-lastyr,xrorpm+xr,yrorpm-yr);
       int lastxc = i -1;
-      float lastyc = map(records3 [i-1][1], 0, 10, 0, 140);
+      float lastyc = map(records3 [i-1][1], 0, 20, 0, 140);
       int xc = i;
-      float yc = map(records3 [i][1], 0, 10, 0, 140);    
+      float yc = map(records3 [i][1], 0, 20, 0, 140);    
       appc.line(xrocent+lastxc,yrocent-lastyc,xrocent+xc,yrocent-yc);
       int lastxd = i - 1;
-      float lastyd = map(records3 [i-1][2], 0, 15, 0, 120);
+      float lastyd = map(records3 [i-1][2], 0, 20, 0, 120);
       int xd = i;
-      float yd = map(records3 [i-1][2], 0, 15, 0, 120);   
+      float yd = map(records3 [i-1][2], 0, 20, 0, 120);   
       appc.line(xrodep+lastxd,yrodep-lastyd,xrodep+xd,yrodep-yd);
       appc.stroke(0,0,0);
     }
@@ -471,14 +471,14 @@ synchronized public void win_draw1(GWinApplet appc, GWinData data) { //_CODE_:wi
       appc.stroke(oraC);
       appc.line(xrorpm+lastxr,yrorpm-lastyr,xrorpm+xr,yrorpm-yr);
       int lastxc = i -1;
-      float lastyc = map(records4 [i-1][1], 0, 10, 0, 140);
+      float lastyc = map(records4 [i-1][1], 0, 20, 0, 140);
       int xc = i;
-      float yc = map(records4 [i][1], 0, 10, 0, 140);    
+      float yc = map(records4 [i][1], 0, 20, 0, 140);    
       appc.line(xrocent+lastxc,yrocent-lastyc,xrocent+xc,yrocent-yc);
       int lastxd = i - 1;
-      float lastyd = map(records4 [i-1][2], 0, 15, 0, 120);
+      float lastyd = map(records4 [i-1][2], 0, 20, 0, 120);
       int xd = i;
-      float yd = map(records4 [i-1][2], 0, 15, 0, 120);   
+      float yd = map(records4 [i-1][2], 0, 20, 0, 120);   
       appc.line(xrodep+lastxd,yrodep-lastyd,xrodep+xd,yrodep-yd);
       appc.stroke(0,0,0);
     }
@@ -721,8 +721,8 @@ public void createGUI(){
   knob2.setOverArcOnly(false);
   knob2.setIncludeOverBezel(false);
   knob2.setShowTrack(true);
-  knob2.setLimits(0.0, 0.0, 10.0);
-  knob2.setNbrTicks(11);
+  knob2.setLimits(0.0, 0.0, 20.0);
+  knob2.setNbrTicks(21);
   knob2.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   knob2.setOpaque(false);
   knob2.addEventHandler(this, "knob2_cent");
@@ -762,12 +762,12 @@ public void createGUI(){
   label11.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   label11.setOpaque(false);
   label12 = new GLabel(this, 564, 64, 30, 30);
-  label12.setText("5");
+  label12.setText("10");
   label12.setTextBold();
   label12.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   label12.setOpaque(false);
   label13 = new GLabel(this, 684, 184, 30, 30);
-  label13.setText("10");
+  label13.setText("20");
   label13.setTextBold();
   label13.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   label13.setOpaque(false);
@@ -858,7 +858,7 @@ public void createGUI(){
   knob3.setOverArcOnly(false);
   knob3.setIncludeOverBezel(false);
   knob3.setShowTrack(true);
-  knob3.setLimits(8.0, 8.0, 42.0);
+  knob3.setLimits(16.0, 16.0, 50.0);
   knob3.setNbrTicks(18);
   knob3.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   knob3.setOpaque(false);
@@ -915,17 +915,17 @@ public void createGUI(){
   label26.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   label26.setOpaque(false);
   label1 = new GLabel(this, 750, 190, 30, 30);
-  label1.setText("8");
+  label1.setText("16");
   label1.setTextBold();
   label1.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   label1.setOpaque(false);
   label27 = new GLabel(this, 762, 142, 30, 30);
-  label27.setText("12");
+  label27.setText("20");
   label27.setTextBold();
   label27.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   label27.setOpaque(false);
   label28 = new GLabel(this, 996, 160, 30, 30);
-  label28.setText("40");
+  label28.setText("48");
   label28.setTextBold();
   label28.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   label28.setOpaque(false);
@@ -945,32 +945,32 @@ public void createGUI(){
   label31.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   label31.setOpaque(false);
   label32 = new GLabel(this, 786, 100, 30, 30);
-  label32.setText("16");
+  label32.setText("24");
   label32.setTextBold();
   label32.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   label32.setOpaque(false);
   label33 = new GLabel(this, 822, 76, 30, 30);
-  label33.setText("20");
+  label33.setText("28");
   label33.setTextBold();
   label33.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   label33.setOpaque(false);
   label34 = new GLabel(this, 858, 64, 30, 30);
-  label34.setText("24");
+  label34.setText("32");
   label34.setTextBold();
   label34.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   label34.setOpaque(false);
   label35 = new GLabel(this, 912, 70, 30, 30);
-  label35.setText("28");
+  label35.setText("36");
   label35.setTextBold();
   label35.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   label35.setOpaque(false);
   label36 = new GLabel(this, 954, 88, 30, 30);
-  label36.setText("32");
+  label36.setText("38");
   label36.setTextBold();
   label36.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   label36.setOpaque(false);
   label37 = new GLabel(this, 978, 118, 30, 30);
-  label37.setText("36");
+  label37.setText("42");
   label37.setTextBold();
   label37.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   label37.setOpaque(false);
@@ -1030,6 +1030,11 @@ public void createGUI(){
   button2.setTextBold();
   button2.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   button2.addEventHandler(this, "button2_click1");
+  label60 = new GLabel(this, 664, 115, 30, 30);
+  label60.setText("16");
+  label60.setTextBold();
+  label60.setLocalColorScheme(GCScheme.RED_SCHEME);
+  label60.setOpaque(false);
   
 }
 
@@ -1095,6 +1100,7 @@ GLabel label42;
 GDropList dropList1; 
 GButton button1; 
 GButton button2; 
+GLabel label60; 
 GWindow window1;
 GToggleGroup togGroup1; 
 GOption option1; 
