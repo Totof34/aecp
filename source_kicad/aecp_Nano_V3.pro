@@ -1,4 +1,4 @@
-update=dim. 16 oct. 2016 23:14:11 CEST
+update=sam. 22 oct. 2016 20:14:21 CEST
 version=1
 last_client=kicad
 [pcbnew]
@@ -60,6 +60,6 @@ LibName30=/home/dedessus/Kicad/library_downloaded/arduino
 LibName31=/home/dedessus/Kicad/library_downloaded/P-SSO-3-2 and  HALL SENSORS/HALL-TLE4935G
 LibName32=/home/dedessus/Kicad/library_downloaded/DDLM
 LibName33=/home/dedessus/Kicad/library_downloaded/Tete_budha
-LibName34=PanhardCD
+LibName34=Panhard
 [general]
 version=1
