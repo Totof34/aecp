@@ -1,6 +1,10 @@
-update=mar. 25 oct. 2016 19:42:30 CEST
+update=22/05/2015 07:44:53
 version=1
 last_client=kicad
+[general]
+version=1
+RootSch=
+BoardNm=
 [pcbnew]
 version=1
 LastNetListRead=
@@ -56,10 +60,3 @@ LibName26=opto
 LibName27=atmel
 LibName28=contrib
 LibName29=valves
-LibName30=/home/dedessus/Kicad/library_downloaded/arduino
-LibName31=/home/dedessus/Kicad/library_downloaded/P-SSO-3-2 and  HALL SENSORS/HALL-TLE4935G
-LibName32=/home/dedessus/Kicad/library_downloaded/DDLM
-LibName33=/home/dedessus/Kicad/library_downloaded/Tete_budha
-LibName34=Panhard
-[general]
-version=1
