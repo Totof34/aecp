@@ -511,6 +511,9 @@ Connection ~ 7100 2900
 NoConn ~ 4450 3150
 Wire Wire Line
 	4600 3050 4450 3050
+NoConn ~ 4450 2950
+Wire Wire Line
+	4450 2850 5400 2850
 Wire Wire Line
 	4600 3100 4600 3050
 $Comp
@@ -587,11 +590,4 @@ F 3 "" H 7850 4450 60  0001 C CNN
 	1    7850 4450
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	5400 2850 4600 2850
-Wire Wire Line
-	4600 2850 4600 2950
-Wire Wire Line
-	4600 2950 4450 2950
-NoConn ~ 4450 2850
 $EndSCHEMATC

@@ -1,0 +1,31 @@
+aecp_Nano_V3_vaccum_sensor - 05/11/2016 
+
+Amount of Layers  : 2
+PCB Thickness     : 1.6 mm
+Copper Thickness  : 35 um
+Plating           : Enig
+Solder Mask Color : Green
+Silkscreen        : Double Side
+PCB Technology    : No SMD
+Peel Off          : No
+Electric Test     : No
+Production Time   : Standard
+Delivery Form     : Single PCB
+PCB Dimension X   : 43.00 mm
+PCB Dimension Y   : 20.00 mm
+Quantity          : 20
+Price per Piece   : x.xx €
+Subtotal          : x.xx €
+
+Country           : France
+Shipping Method   : Registered Airmail
+Payment Method    : PayPal
+
+Mr Chanteperdrix Roger
+7 impasse les pêchers
+34670 Baillargues
+France
+
+Phone    : +334.67.87.15.21
+Username :  
+mail     : chanteperdrix34@gmail.com
