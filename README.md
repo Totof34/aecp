@@ -31,6 +31,11 @@ With some parts
 
 ![](images/aecp_pcb.JPG)
 
+The new version of the PCB for longtime test
+
+![](images/PCB_aecp_recto.JPG)
+![](images/PCB_aecp_verso.JPG)
+
 You can select different curve with a box
 
 ![](images/Selecteur_de_courbes.JPG)
@@ -50,7 +55,7 @@ or the build folder for a made version
 
 For the schema see below
 
-![](schematics/aecp_Nano_V2.png)
+![](schematics/aecp_schéma.png)
 
 for the rest, I suggest you to navigate into folders and open the pdf
 
