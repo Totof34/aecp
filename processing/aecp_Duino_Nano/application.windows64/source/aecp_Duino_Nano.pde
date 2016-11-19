@@ -59,7 +59,7 @@ int[][] mydepressiony = new int[12][1];
 int myspeedRaw;
 float[] myspeed = new float[176];
 float mydepressionRaw;
-float[] mydepression = new float[500];
+float[] mydepression = new float[300];
 
 int q;
 int xcentOrigin = 390;
@@ -207,7 +207,7 @@ public void setup(){
 void serialEvent(Serial p) {
  String message = myPort.readStringUntil(LF); // On lit le message reçu, jusqu'au saut de ligne
  if (message == null){
-  
+   
  }
  
  if (message != null)
@@ -359,7 +359,7 @@ public void storedepression(){
   int s = mmhgValue;
   float dep = mydepressionRaw;
   //print(s);print(",");
-  //println(dep);
+  //println(av);
   mydepression [s] = dep;
   //print(mydepression [s]);println(","); 
    
