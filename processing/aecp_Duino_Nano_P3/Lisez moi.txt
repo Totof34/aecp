@@ -1,0 +1,50 @@
+Bonjour 
+
+Cette interface peut fonctionner sous Linux mais aussi windows ou mac 
+pour cela il faut adapter quelques lignes de code ou entrée dans certain fichier
+
+La version de Processing est 2.2.1 , une migration vers Processing 3 sera possible
+ultérieurement
+
+Commencer par vérifier que vous aillez les bonne librairies d'installées ainsi que les outils
+Pour la librairie c'est G4P de peter Lager 
+Pour l'outil c'est G4P GUI builder de peter Lager
+
+Ensuite il faut adapter à son OS le fichier aecp.conf
+Sous Linux (comme sous mac)les chemins sont du type ci-dessous
+aefmespath /home/monuser/sketchbook/myproject/aecp_Duino_Nano/aef/
+AEFpath /home/monuser/sketchbook/myproject/aepl_Duino_Nano_V2/aef/PL17_pierre_baillargues_sommières.aef
+
+Sous Windows les chemins deviennent
+aefmespath C:\Users\monuser\Documents\sketchbook\myproject\aecp_Duino_Nano\aef\
+AEFpath C:\Users\monuser\Documents\sketchbook\myproject\aecp_Duino_Nano\aef\mondernierfichierouvert.aef
+
+Ce qui va aider a la fluidité d'enregistrement et recharge de l'historique ;-)
+
+Autre différence entre linux et windows pour l'enregistrement des "data" 
+il faut modifier le fichier plotutil.pde
+Sous linux la fonction recordall() s'écrit comme ci-dessous
+public void recordall(){
+  sExportdata = ( sName + " " + day + " " + month + " " + year + " " + hour + " " + minute + " " + second);
+  sData[0] = sExportdata;
+  sExportdata = (speedValue + " " + correcteddelayDegree + " " + pressionValue +"\r"); // Attention version windows, enlever le "\r" car génère un CLRF
+  sData[xrpmPos] = sExportdata;
+  //println(sExportdata);
+  //println(xrpmPos);
+  //saveStrings(sName + ".aef", sData);
+}
+Sous windows on n'a pas besoin du caractère de fin de ligne "\r" et donc la fonction recordall() devient
+public void recordall(){
+  sExportdata = ( sName + " " + day + " " + month + " " + year + " " + hour + " " + minute + " " + second);
+  sData[0] = sExportdata;
+  sExportdata = (speedValue + " " + correcteddelayDegree + " " + pressionValue); // Attention version windows, enlever le "\r" car génère un CLRF
+  sData[xrpmPos] = sExportdata;
+  //println(sExportdata);
+  //println(xrpmPos);
+  //saveStrings(sName + ".aef", sData);
+}
+
+Je compléterai au gré des problèmes rencontrés, mon mail pour toutes questions si besoin
+christophe.dedessus@sfr.fr
+
+
