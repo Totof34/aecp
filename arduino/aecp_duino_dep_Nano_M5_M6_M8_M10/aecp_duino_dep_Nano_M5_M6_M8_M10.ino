@@ -1,29 +1,30 @@
 #include <TimerOne.h> //Génère une interruption toutes les  trech ou Dsecu µs
 
 //**************************************************************
-//Aecp-Duino    Allumage electronique programmable - Arduino
-char ver[] = "version du 13_07_2016";//Choix entre 3 types de Dwell.
-//En option, connexion d'un potard de 100kohm enter la patte A4 et la masse
-//pour changer de courbe
+//Aecp-Duino    Allumage electronique programmable - Arduino - 2016
+//Mr Loutrel Philippe, voir son site,
+//http://a110a.free.fr/SPIP172/article.php3?id_article=142
+//Mr Dedessus Les Moutier Christophe pour la version Panhard
+char ver[] = "version du 25_12_2016";//Choix entre 3 types de Dwell.
+//En option, connexion d'un sélecteur entre la patte A4 et A5 et la masse
+//pour changer de courbe d'avance centrifuge et dépression
+//Les datas envoyées pour Processing sont en fin de boucle loop 
 //T>14ms, correction Christophe.Avance 0°jusqu'a 500t/mn, anti retour de kick
 //Detection et traitement special au demarrage (première etincelle)
 //******************************************************************************
 
-//******************************************************************************
-// Essai concluant sur la voiture de Pierre ce mercredi 13/07/2016
-//******************************************************************************
-
 //************* ces lignes explique la lecture de la dépression ****************
 // Pour la dépression ci-dessous le tableau des mesures relevés sur un banc Souriau
-// Degdep = map((analogRead(A0)),330,565,150,0);  //Mesure la dépression
-// Degdep = map((analogRead(A0)),x,y,z,v);
-// x = valeur ADC haute pour conversion de la valeur mmHg haute
-// y = valeur ADC basse pour conversion de la valeur mmHg basse
-// z = valeur de la limite en degré haute x 10 pour avoir les centièmes
-// v = valeur de la limite en degré basse soit 0 degré
+// Degdep = map((analogRead(A0)),xhigh,xlow,yhigh,ylow);
+int xhigh = 0;// valeur ADC haute pour conversion de la valeur mmHg haute
+int xlow = 0;// valeur ADC basse pour conversion de la valeur mmHg basse
+int yhigh = 0;// valeur de la limite en degré haute x 10 pour avoir les centièmes
+int ylow = 0;// valeur de la limite en degré basse soit 0 degré
 // tableau des valeurs mmHg vs 8 bits
 // {0,707}{25,667}{50,620}{60,601}{75,576}{80,565}{95,538}{100,530}{125,485}{150,438}{175,394}{185,373}{200,350}{210,330}{225,305}{250,260}{275,216}{300,172}
 // relevé en activant la ligne Degdepcal et en ajoutant cette variable à l'édition dans le terminal série
+// on peut en déduire une équation qui donne la valeur en mmHg au départ de la conversion ADC , utilisé sous Processing
+// mmHg = (707 - valeur ADC)/1.78 ou 1.78 est la pente du capteur pour tension VS mmHg
 
 //**************  Ces 6 lignes sont à renseigner obligatoirement.****************
 // Ce sont : Na[],Anga[],  Ncyl, AngleCapteur, CaptOn, Dwell
@@ -34,12 +35,10 @@ char ver[] = "version du 13_07_2016";//Choix entre 3 types de Dwell.
 int Na[] = {0,1240,2050,2500,3400,4100,4200,7000, 0};
 //degrés d'avance vilebrequin correspondant soit en tour volant moteur ( attention ! ):
 int Anga[] = {0,0,4,6,10,14,16,16, 0};
-//Pour un moteur Alpine Cléon alu, 1796cc, arbre à cames Savoye S11
-//const int N[] = {0, 2000, 3000, 6000, 9000, 0, 0}; //Pour test
-//const int Ang[] = {0, 10,  25,   35, 40, 0, 0};
+
 int Ncyl = 2;           //Nombre de cylindres, moteur Panhard
 const int AngleCapteur = 90; //le capteur(Hall) est 45° avant le PMH habituellement
-const int Avancestatique = 17;
+const int Avancestatique = 17; // Correspond à 5 dents d'avance statique sur volant moteur
 const int CaptOn = 0;  //CapteurOn = 1 déclenche sur front montant (capteur saturé)
 //CapteurOn = 0 déclenche sur front descendant (capteur non saturé).Voir fin du listing
 //**********************************************************************************
@@ -65,22 +64,31 @@ int Angd[] = {0,0,18,18, 0};
 int Ne[] = {0,600,4300,7000, 0};    //Courbe e
 int Ange[] = {0,0,14,14, 0};
 //**********************************************************************************
+//********************FLASH********************
+ //Module flash 3W à Led (type Keyes) connecté sur A5, +5V et la masse
+//Decommenter dans la fonction Etincelle ()la ligne 179 :
+//digitalWrite(Flash, 1); delayMicroseconds(tFlash); digitalWrite(Flash, 0); 
+int tFlash = 200; //Durée du flash en µs 100, typique
+//**********************************************************************************
 //************Ces 4 valeurs sont eventuellement modifiables*****************
 //Ce sont Nplancher, trech , Dsecu et delAv
 const int Nplancher = 500; // vitesse en t/mn jusqu'a laquelle l'avance  = 0°
-const int trech  = 3000;//temps de recharge bobine, 3ms= 3000µs typique
+const int trech  = 6000;//temps de recharge bobine, 3ms= 3000µs typique
 const int unsigned long Dsecu  = 1000000;//Securite: bobine coupee à l'arret apres Dsecu µs
 int delAv = 1;//delta avance,par ex 2°. Quand Pot avance d'une position, l'avance croit de delAv
 
 const int Bob1 = 8;    //Sortie D8 vers bobine1
 const int Bob2 = 4;    //Sortie D4 vers bobine2
 const int Cible = 2;  //Entrée sur D2 du capteur, R PullUp et interrupt
-const int Pot = A4;   //Entrée analogique sur A4 pour potard de changement de courbes. R PullUp
+const int Pot1 = A4;   //Entrée analogique sur A4 pour potard de changement de courbes d'avance centrifuge. R PullUp
+const int Pot2 = A5;   //Entrée analogique sur A5 pour potard de changement de courbes d'avance dépression. R PullUp
+const int Flash = 11;  //Sortie D11 vers module Flash Led 3w  Keyes
 const int Led = 13; //Sortie D13 avec la led built-in pour caller le disque par rapport au capteur 
 int unsigned long D = 0;  //Delai en µs à attendre après la cible pour l'étincelle
 int unsigned long Ddep = 0;
 int unsigned long Dsum = 0;
-int valPot = 0;       //0 à 1023 selon la position du potentiomètre en entree
+int valPot1 = 0;       //0 à 1023 selon la position du potentiomètre en entree
+int valPot2 = 0;       //0 à 1023 selon la position du potentiomètre en entree
 int milli_delay = 0;
 int micro_delay = 0;
 float RDzero = 0; //pour calcul delai avance 0° < vitesse seuil plancher
@@ -171,15 +179,14 @@ void  Etincelle ()//////////while (1); delay(1000);/////////////////////////////
   digitalWrite(Bob1, 0); //Couper le courant, donc étincelle
   digitalWrite(Bob2, 0); //Couper le courant, donc étincelle
   Stop_temps = micros();
+  //digitalWrite(Flash, 1); delayMicroseconds(tFlash); digitalWrite(Flash, 0);
   switch (Dwell)  //Attente courant coupé selon le type de Dwell
-
   { case 1:       //Ibob coupe 1ms par cycle seulement, la bobine peut chauffer
-      Davant_rech = 1000; //1ms off par cycle
+      Davant_rech = 1200; //1ms2 off par cycle
       break;
 
     case  2:      //Type bobine faible resistance, dite "electronique"
-      Davant_rech = 2 * T - Tprec - trech; //Tenir compte des variations de régime moteur
-      Tprec = T;    //Maj de la future periode precedente
+      Davant_rech = 2 * T - Tant - trech;//On doit enir compte des variations de régime moteur
       break;
 
     case  3:      //Type "vis platinées", Off 1/3, On 2/3
@@ -188,15 +195,17 @@ void  Etincelle ()//////////while (1); delay(1000);/////////////////////////////
   }
   Timer1.initialize(Davant_rech);//Attendre Drech µs avant de retablire le courant dans la bobine
   UneEtin = 1; //Signaler une étincelle à l'isr_GestionIbob().
-  
 }
 void  Init ()////////////////////while (1); delay(1000);/////////////////////////////
-{ AngleCibles = 720 / Ncyl; //Ex pour 4 cylindres 180°, et 120° pour 6 cylindres
+{ digitalWrite(Bob1, 0);//par principe, couper la bobine
+  digitalWrite(Bob2, 0);//par principe, couper la bobine
+  AngleCibles = 720 / Ncyl; //Ex pour 4 cylindres 180°, et 120° pour 6 cylindres
   NT  = 120000000 / Ncyl; //Facteur de conversion Nt/mn en Tµs
   Tdem  = NT/Ndem;//Periode de la première étincelle
   Tplancher = 120000000 / Nplancher / Ncyl; //T à  vitesse plancher en t/mn, en dessous, avance centrifuge = 0
   RDzero = float(AngleCapteur - Avancestatique) / float(AngleCibles);
-  Select_Courbe();  //Ajuster éventuellement les pointeurs pN et pA pour la courbe b ou c 
+  Select_Courbe();  //Ajuster éventuellement les pointeurs pN et pA pour la courbe a,b,c,d ou e 
+  Select_Courbe_depression(); // Sélectionne pour la courbe a,b,c,d ou e de dépression
   N1  = 0; Ang1 = 0; //Toute courbe part de  0
   int i = 0;    //locale mais valable hors du FOR
   pN++; pA++; //sauter le premier element de tableau, toujours =0
@@ -225,8 +234,6 @@ void  Init ()////////////////////while (1); delay(1000);////////////////////////
   Timer1.attachInterrupt(isr_GestionIbob);//IT d'overflow de Timer1 (16 bits)
   Timer1.initialize(Dsecu);//Le courant dans la bobine est coupé si aucune etincelle durant Dsecu µs
   Mot_OFF = 1;
-  digitalWrite(Bob1, 0);//par principe, couper la bobine
-  digitalWrite(Bob2, 0);//par principe, couper la bobine
 }
 void  isr_GestionIbob()////////////////////while (1); delay(1000);/////////////////////////////
 { Timer1.stop();    //Arreter le decompte du timer
@@ -244,33 +251,79 @@ void  isr_GestionIbob()////////////////////while (1); delay(1000);//////////////
 }
 void  Select_Courbe()////////////while (1); delay(1000);/////////////////////////////
 //Par défaut, la courbe a est déja selectionnée
-{ valPot = analogRead(Pot);
-  Serial.print("valPot = "); Serial.print(valPot);
-  if (valPot < 99) {                  // Shunt 0 ohm donne 15 
-    Serial.println(", Courbe a");
+{ valPot1 = analogRead(Pot1);
+  Serial.print("Le selecteur 1 = "); Serial.print(valPot1); Serial.print(" ,Centrifuge = ");
+  if (valPot1 < 99) {                  // Shunt 0 ohm donne 15 
+    Serial.println(" Courbe a");
   }
-  if (valPot > 110 && valPot < 150) { // Résistance de 4K7 donne 130 
+  if (valPot1 > 110 && valPot1 < 150) { // Résistance de 4K7 donne 130 
     pN = &Nb[0];  // pointer à la courbe b
     pA = &Angb[0];
-    Serial.println(", Courbe b");
+    Serial.println(" Courbe b");
   }
-  if (valPot > 320 && valPot < 360) {  // Résistance de 18K donne 340    
+  if (valPot1 > 320 && valPot1 < 360) {  // Résistance de 18K donne 340    
     pN = &Nc[0];  // pointer à la courbe c
     pA = &Angc[0];
-    Serial.println(", Courbe c");
+    Serial.println(" Courbe c");
   }
-  if (valPot > 545 && valPot < 585) {  // Résistance de 47K donne 565    
+  if (valPot1 > 545 && valPot1 < 585) {  // Résistance de 47K donne 565    
     pN = &Nd[0];  // pointer à la courbe c
     pA = &Angd[0];
-    Serial.println(", Courbe d");
+    Serial.println(" Courbe d");
   }
-  if (valPot > 715 && valPot < 755) {  // Résistance de 100K donne 735    
+  if (valPot1 > 715 && valPot1 < 755) {  // Résistance de 100K donne 735    
     pN = &Ne[0];  // pointer à la courbe c
     pA = &Ange[0];
-    Serial.println(", Courbe e");
+    Serial.println(" Courbe e");
   }
-  if (valPot > 995) {                  // Pas de shunt donne 1015 
-    Serial.println(", Courbe a");
+  if (valPot1 > 995) {                  // Pas de shunt donne 1015 
+    Serial.println(" Courbe a");
+  }
+}
+void  Select_Courbe_depression()////////////while (1); delay(1000);/////////////////////////////
+{ valPot2 = analogRead(Pot2);
+  Serial.print("Le selecteur 2 = "); Serial.print(valPot2); Serial.print(" ,Depression = ");
+  if (valPot2 < 99) {                  // Shunt 0 ohm donne 15 
+    xhigh = 330; // soit 210 mmHg
+    xlow = 565;  // soit 80 mmHg
+    yhigh = 150; // soit 15°
+    ylow = 0;    // soit 0°
+    Serial.println(" Courbe a");
+  }
+  if (valPot2 > 110 && valPot2 < 150) { // Résistance de 4K7 donne 130 
+    xhigh = 330; // soit 210 mmHg
+    xlow = 538;  // soit 95 mmHg
+    yhigh = 140; // soit 14°
+    ylow = 0;    // soit 0°
+    Serial.println(" Courbe b");
+  }
+  if (valPot2 > 320 && valPot2 < 360) {  // Résistance de 18K donne 340    
+    xhigh = 350; // soit 200 mmHg
+    xlow = 601;  // soit 60 mmHg
+    yhigh = 160; // soit 16°
+    ylow = 0;    // soit 0°
+    Serial.println(" Courbe c");
+  }
+  if (valPot2 > 545 && valPot2 < 585) {  // Résistance de 47K donne 565    
+    xhigh = 350; // soit 200 mmHg
+    xlow = 538;  // soit 95 mmHg
+    yhigh = 160; // soit 16°
+    ylow = 0;    // soit 0°
+    Serial.println(" Courbe d");
+  }
+  if (valPot2 > 715 && valPot2 < 755) {  // Résistance de 100K donne 735    
+    xhigh = 330; // soit 210 mmHg
+    xlow = 601;  // soit 60 mmHg
+    yhigh = 140; // soit 14°
+    ylow = 0;    // soit 0°
+    Serial.println(" Courbe e");
+  }
+  if (valPot2 > 995) {                  // Pas de shunt donne 1015 
+    xhigh = 330; // soit 210 mmHg
+    xlow = 565;  // soit 80 mmHg
+    yhigh = 150; // soit 15°
+    ylow = 0;    // soit 0°
+    Serial.println(" Courbe a");
   }
 }
 ////////////////////////////////////////////////////////////////////////
@@ -285,7 +338,8 @@ void setup()//////////////////while (1); delay(1000);//////////////////////////
   pinMode(Bob1, OUTPUT); //Sortie sur D4 controle du courant dans la bobine1
   pinMode(Bob2, OUTPUT); //Sortie sur D6 controle du courant dans la bobine2
   //Nota: on peut connecter une Led de controle sur D4 avec R=330 ohms vers la masse
-  pinMode(Pot, INPUT_PULLUP); //Entrée pour potard 100kohms ou sélecteur rotatif avec résistances, optionnel !
+  pinMode(Pot1, INPUT_PULLUP); //Entrée pour potard 100kohms ou sélecteur rotatif avec résistances, optionnel !
+  pinMode(Pot2, INPUT_PULLUP); //Entrée pour potard 100kohms ou sélecteur rotatif avec résistances, optionnel !
   // set up the ADC
   ADCSRA &= ~PS_128;  // remove bits set by Arduino library
   // you can choose a prescaler from above.
@@ -294,6 +348,7 @@ void setup()//////////////////while (1); delay(1000);//////////////////////////
   // set our own prescaler to 64 
   Init(); // Executée une fois au demarrage et à chaque changement de courbe
   pinMode(Led, OUTPUT); // pour signaler le calage du capteur lors de la mise au point
+  pinMode(Flash, OUTPUT);//Sortie vers flash, patte S
 }
 
 
@@ -304,19 +359,21 @@ void loop()   /////////////////////while (1); delay(1000);/////////////////
  while (digitalRead(Cible) == !CaptOn); //Attendre front actif de la cible
   T = micros() - prec_H;    //front actif, arrivé calculer T
   prec_H = micros(); //heure du front actuel qui deviendra le front precedent
-  //digitalWrite(Led,HIGH); // Décommenter cette ligne pour caller le capteur , voir plus loin la 2ème ligne 323
+  //digitalWrite(Led,LOW); // Décommenter cette ligne pour caller le capteur , voir plus loin la 2ème ligne 323
   Dep = analogRead(A0);
-  Degdep = map(Dep,330,565,150,0);  //Mesure la dépression
+  Degdep = map(Dep,xhigh,xlow,yhigh,ylow);  //Mesure la dépression
   Degdep = Degdep/10;
   //int Degdepcal = analogRead(A0); Pour calibrage du capteur MV3P5050
     if (Degdep < 0){ Degdep = 0; }
-    else if (Degdep > 15){ Degdep = 15; }
+    else if (Degdep > (yhigh/10)){ Degdep = (yhigh/10); }
     else ;
   Vitesse = NT/T;
   Delaideg = NT / Vitesse /float(AngleCibles);
   if ( Mot_OFF == 1 ) {
-    Mot_OFF = 0;  //Demarrage:premier front de capteur, forcer T = Tdem
-    T = Tdem;
+    T = Tdem;//Fournir  T = Tdem car prec_H n'existe par pour la première étincelle
+    digitalWrite(Bob1, 1);  //Retablire le courant dans bobine
+    digitalWrite(Bob2, 1);  //Retablire le courant dans bobine
+    Mot_OFF = 0; //Le moteur tourne
   }
   if (T > Tlim)     //Sous la ligne rouge?
   { CalcD(); // Top();  //Oui
@@ -333,7 +390,7 @@ void loop()   /////////////////////while (1); delay(1000);/////////////////
   
   Tempsecoule = Stop_temps - prec_H ;
   Tant = T; // Sauve la valeur de T en cas de perte d'info du capteur
-  //digitalWrite(Led,LOW);
+  //digitalWrite(Led,HIGH);
 
   Serial.print("S");
   Serial.print(",");

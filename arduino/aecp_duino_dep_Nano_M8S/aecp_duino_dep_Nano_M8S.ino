@@ -1,8 +1,11 @@
 #include <TimerOne.h> //Génère une interruption toutes les  trech ou Dsecu µs
 
 //**************************************************************
-//Aecp-Duino    Allumage electronique programmable - Arduino
-char ver[] = "version du 08_07_2016";//Choix entre 3 types de Dwell.
+//Aecp-Duino    Allumage electronique programmable - Arduino - 2016
+//Mr Loutrel Philippe, voir son site,
+//http://a110a.free.fr/SPIP172/article.php3?id_article=142
+//Mr Dedessus Les Moutier Christophe pour la version Panhard
+char ver[] = "version du 25_12_2016";//Choix entre 3 types de Dwell.
 //En option, connexion d'un sélecteur entre la patte A4 et A5 et la masse
 //pour changer de courbe d'avance centrifuge et dépression
 //Les datas envoyées pour Processing sont en fin de boucle loop 
@@ -35,7 +38,8 @@ int Anga[] = {0,0,0,0,0,0,0,0,0};
 
 int Ncyl = 2;           //Nombre de cylindres, moteur Panhard
 const int AngleCapteur = 90; //le capteur(Hall) est 45° avant le PMH habituellement
-const int Avancestatique = 32;
+const int Avancestatique = 32; // Correspond à 9 dents d'avance statique sur volant moteur
+int Decalavancestatique = 0;
 const int CaptOn = 0;  //CapteurOn = 1 déclenche sur front montant (capteur saturé)
 //CapteurOn = 0 déclenche sur front descendant (capteur non saturé).Voir fin du listing
 //**********************************************************************************
@@ -61,19 +65,26 @@ int Angd[] = {0,0,10,10, 0};
 int Ne[] = {0,600,4300,7000, 0};    //Courbe e
 int Ange[] = {0,0,6,6, 0};
 //**********************************************************************************
+//********************FLASH********************
+ //Module flash 3W à Led (type Keyes) connecté sur A5, +5V et la masse
+//Decommenter dans la fonction Etincelle ()la ligne 179 :
+//digitalWrite(Flash, 1); delayMicroseconds(tFlash); digitalWrite(Flash, 0); 
+int tFlash = 200; //Durée du flash en µs 100, typique
+//**********************************************************************************
 //************Ces 4 valeurs sont eventuellement modifiables*****************
 //Ce sont Nplancher, trech , Dsecu et delAv
 const int Nplancher = 500; // vitesse en t/mn jusqu'a laquelle l'avance  = 0°
-const int trech  = 3000;//temps de recharge bobine, 3ms= 3000µs typique
+const int trech  = 5000;//temps de recharge bobine, 6ms= 6000µs vérifié au scope comme fonctionnel
 const int unsigned long Dsecu  = 1000000;//Securite: bobine coupee à l'arret apres Dsecu µs
 int delAv = 1;//delta avance,par ex 2°. Quand Pot avance d'une position, l'avance croit de delAv
 
 const int Bob1 = 8;    //Sortie D8 vers bobine1
 const int Bob2 = 4;    //Sortie D4 vers bobine2
-const int Cible = 2;  //Entrée sur D2 du capteur, R PullUp et interrupt
+const int Cible = 2;   //Entrée sur D2 du capteur, R PullUp et interrupt
 const int Pot1 = A4;   //Entrée analogique sur A4 pour potard de changement de courbes d'avance centrifuge. R PullUp
 const int Pot2 = A5;   //Entrée analogique sur A5 pour potard de changement de courbes d'avance dépression. R PullUp
-const int Led = 13; //Sortie D13 avec la led built-in pour caller le disque par rapport au capteur
+const int Flash = 11;  //Sortie D11 vers module Flash Led 3w  Keyes
+const int Led = 13;    //Sortie D13 avec la led built-in pour caller le disque par rapport au capteur
 int unsigned long D = 0;  //Delai en µs à attendre après la cible pour l'étincelle
 int unsigned long Ddep = 0;
 int unsigned long Dsum = 0;
@@ -169,15 +180,15 @@ void  Etincelle ()//////////while (1); delay(1000);/////////////////////////////
   digitalWrite(Bob1, 0); //Couper le courant, donc étincelle
   digitalWrite(Bob2, 0); //Couper le courant, donc étincelle
   Stop_temps = micros();
+  //digitalWrite(Flash, 1); delayMicroseconds(tFlash); digitalWrite(Flash, 0);
   switch (Dwell)  //Attente courant coupé selon le type de Dwell
 
   { case 1:       //Ibob coupe 1ms par cycle seulement, la bobine peut chauffer
-      Davant_rech = 1000; //1ms off par cycle
+      Davant_rech = 1200; //1ms off par cycle
       break;
 
     case  2:      //Type bobine faible resistance, dite "electronique"
-      Davant_rech = 2 * T - Tprec - trech; //Tenir compte des variations de régime moteur
-      Tprec = T;    //Maj de la future periode precedente
+      Davant_rech = 2 * T - Tant - trech; //Tenir compte des variations de régime moteur
       break;
 
     case  3:      //Type "vis platinées", Off 1/3, On 2/3
@@ -189,13 +200,15 @@ void  Etincelle ()//////////while (1); delay(1000);/////////////////////////////
   
 }
 void  Init ()////////////////////while (1); delay(1000);/////////////////////////////
-{ AngleCibles = 720 / Ncyl; //Ex pour 4 cylindres 180°, et 120° pour 6 cylindres
+{ digitalWrite(Bob1, 0);//par principe, couper la bobine
+  digitalWrite(Bob2, 0);//par principe, couper la bobine
+  AngleCibles = 720 / Ncyl; //Ex pour 4 cylindres 180°, et 120° pour 6 cylindres
   NT  = 120000000 / Ncyl; //Facteur de conversion Nt/mn en Tµs
   Tdem  = NT/Ndem;//Periode de la première étincelle
   Tplancher = 120000000 / Nplancher / Ncyl; //T à  vitesse plancher en t/mn, en dessous, avance centrifuge = 0
-  RDzero = float(AngleCapteur - Avancestatique) / float(AngleCibles);
   Select_Courbe();  //Ajuster éventuellement les pointeurs pN et pA pour la courbe a,b,c,d ou e 
   Select_Courbe_depression(); // Sélectionne pour la courbe a,b,c,d ou e de dépression
+  RDzero = float(AngleCapteur - Avancestatique + Decalavancestatique) / float(AngleCibles);
   N1  = 0; Ang1 = 0; //Toute courbe part de  0
   int i = 0;    //locale mais valable hors du FOR
   pN++; pA++; //sauter le premier element de tableau, toujours =0
@@ -203,7 +216,7 @@ void  Init ()////////////////////while (1); delay(1000);////////////////////////
   //pN est une adresse (pointeur) qui pointe au tableau N.Le contenu pointé est *pN
   { N2 = *pN; Ang2 = *pA;//recopier les valeurs pointées dans N2 et Ang2
     k = float(Ang2 - Ang1) / float(N2  - N1);
-    C1[i] = float(AngleCapteur - Avancestatique - Ang1 + k * N1) / float(AngleCibles);
+    C1[i] = float(AngleCapteur - Avancestatique + Decalavancestatique - Ang1 + k * N1) / float(AngleCibles);
     C2[i] = -  float(NT * k) / float(AngleCibles);
     Tc[i] = float(NT / N2);
     N1 = N2; Ang1 = Ang2; //fin de ce segment, début du suivant
@@ -224,8 +237,6 @@ void  Init ()////////////////////while (1); delay(1000);////////////////////////
   Timer1.attachInterrupt(isr_GestionIbob);//IT d'overflow de Timer1 (16 bits)
   Timer1.initialize(Dsecu);//Le courant dans la bobine est coupé si aucune etincelle durant Dsecu µs
   Mot_OFF = 1;
-  digitalWrite(Bob1, 0);//par principe, couper la bobine
-  digitalWrite(Bob2, 0);//par principe, couper la bobine
 }
 void  isr_GestionIbob()////////////////////while (1); delay(1000);/////////////////////////////
 { Timer1.stop();    //Arreter le decompte du timer
@@ -251,21 +262,25 @@ void  Select_Courbe()////////////while (1); delay(1000);////////////////////////
   if (valPot1 > 110 && valPot1 < 150) { // Résistance de 4K7 donne 130 
     pN = &Nb[0];  // pointer à la courbe b
     pA = &Angb[0];
+    Decalavancestatique = 6;
     Serial.println(" Courbe b");
   }
   if (valPot1 > 320 && valPot1 < 360) {  // Résistance de 18K donne 340    
     pN = &Nc[0];  // pointer à la courbe c
     pA = &Angc[0];
+    Decalavancestatique = 10;
     Serial.println(" Courbe c");
   }
   if (valPot1 > 545 && valPot1 < 585) {  // Résistance de 47K donne 565    
     pN = &Nd[0];  // pointer à la courbe c
     pA = &Angd[0];
+    Decalavancestatique = 10;
     Serial.println(" Courbe d");
   }
   if (valPot1 > 715 && valPot1 < 755) {  // Résistance de 100K donne 735    
     pN = &Ne[0];  // pointer à la courbe c
     pA = &Ange[0];
+    Decalavancestatique = 6;
     Serial.println(" Courbe e");
   }
   if (valPot1 > 995) {                  // Pas de shunt donne 1015 
@@ -312,7 +327,7 @@ void  Select_Courbe_depression()////////////while (1); delay(1000);/////////////
   }
   if (valPot2 > 995) {                  // Pas de shunt donne 1015 
     xhigh = 330; // soit 210 mmHg
-    xlow = 538;  // soit 95 mmHg
+    xlow = 565;  // soit 80 mmHg
     yhigh = 150; // soit 15°
     ylow = 0;    // soit 0°
     Serial.println(" Courbe a");
@@ -350,7 +365,7 @@ void loop()   /////////////////////while (1); delay(1000);/////////////////
  while (digitalRead(Cible) == !CaptOn); //Attendre front actif de la cible
   T = micros() - prec_H;    //front actif, arrivé calculer T
   prec_H = micros(); //heure du front actuel qui deviendra le front precedent
-  //digitalWrite(Led,HIGH); // Décommenter cette ligne pour caller le capteur , voir plus loin la 2ème ligne 373
+  //digitalWrite(Led,LOW); // Décommenter cette ligne pour caller le capteur , voir plus loin la 2ème ligne 388
   Dep = analogRead(A0);
   Degdep = map(Dep,xhigh,xlow,yhigh,ylow);  //Mesure la dépression
   Degdep = Degdep/10;
@@ -361,8 +376,10 @@ void loop()   /////////////////////while (1); delay(1000);/////////////////
   Vitesse = NT/T;
   Delaideg = NT / Vitesse /float(AngleCibles);
   if ( Mot_OFF == 1 ) {
-    Mot_OFF = 0;  //Demarrage:premier front de capteur, forcer T = Tdem
-    T = Tdem;
+    T = Tdem;//Fournir  T = Tdem car prec_H n'existe par pour la première étincelle
+    digitalWrite(Bob1, 1);  //Retablire le courant dans bobine
+    digitalWrite(Bob2, 1);  //Retablire le courant dans bobine
+    Mot_OFF = 0; //Le moteur tourne
   }
   if (T > Tlim)     //Sous la ligne rouge?
   { CalcD(); // Top();  //Oui
@@ -379,7 +396,7 @@ void loop()   /////////////////////while (1); delay(1000);/////////////////
   
   Tempsecoule = Stop_temps - prec_H ;
   Tant = T; // Sauve la valeur de T en cas de perte d'info du capteur
-  //digitalWrite(Led,LOW);
+  //digitalWrite(Led,HIGH);
   
   Serial.print("S");
   Serial.print(",");

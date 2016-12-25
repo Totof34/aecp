@@ -1,8 +1,11 @@
 #include <TimerOne.h> //Génère une interruption toutes les  trech ou Dsecu µs
 
 //**************************************************************
-//Aecp-Duino    Allumage electronique programmable - Arduino
-char ver[] = "version du 08_07_2016";//Choix entre 3 types de Dwell.
+//Aecp-Duino    Allumage electronique programmable - Arduino - 2016
+//Mr Loutrel Philippe, voir son site,
+//http://a110a.free.fr/SPIP172/article.php3?id_article=142
+//Mr Dedessus Les Moutier Christophe pour la version Panhard
+char ver[] = "version du 25_12_2016";//Choix entre 3 types de Dwell.
 //En option, connexion d'un sélecteur entre la patte A4 et A5 et la masse
 //pour changer de courbe d'avance centrifuge et dépression
 //Les datas envoyées pour Processing sont en fin de boucle loop 
@@ -35,7 +38,8 @@ int Anga[] = {0,0,0,0,0,0,0,0,0};
 
 int Ncyl = 2;           //Nombre de cylindres, moteur Panhard
 const int AngleCapteur = 90; //le capteur(Hall) est 45° avant le PMH habituellement
-const int Avancestatique = 32;
+const int Avancestatique = 32; // Correspond à 9 dents d'avance statique sur volant moteur
+int Decalavancestatique = 0;
 const int CaptOn = 0;  //CapteurOn = 1 déclenche sur front montant (capteur saturé)
 //CapteurOn = 0 déclenche sur front descendant (capteur non saturé).Voir fin du listing
 //**********************************************************************************
@@ -363,16 +367,19 @@ void demo(){
     T = NT/(i*40) ;
     uspardegre = (T/float(AngleCibles));
     CalcD();
-    Dep = map((analogRead(A1)),275,495,15,0);  //Mesure la dépression
-    if (Dep < 0){ Dep = 0; }
-    else if (Dep > 15){ Dep = 15; }
+    Dep = analogRead(A0);
+    Degdep = map(Dep,330,565,150,0);  //Mesure la dépression
+    Degdep = Degdep/10;
+    //int Degdepcal = analogRead(A0); Pour calibrage du capteur MV3P5050
+    if (Degdep < 0){ Degdep = 0; }
+    else if (Degdep > 15){ Degdep = 15; }
     else ;
     
     Serial.print("S");
     Serial.print(",");
     Serial.print(i*40);
     Serial.print(",");
-    Serial.print(Dep);
+    Serial.print(Degdep);
     Serial.print(",");
     Serial.print(D);
     Serial.print(",");
@@ -380,7 +387,7 @@ void demo(){
     Serial.print(",");
     Serial.print("0");
     Serial.print(",");
-    Serial.print("0");
+    Serial.print(Dep);
     Serial.println(",");
     delay(100);
   }
@@ -388,16 +395,19 @@ void demo(){
     T = NT/(i*40) ;
     uspardegre = (T/float(AngleCibles));
     CalcD();
-    Dep = map((analogRead(A1)),275,495,15,0);  //Mesure la dépression
-    if (Dep < 0){ Dep = 0; }
-    else if (Dep > 15){ Dep = 15; }
+    Dep = analogRead(A0);
+    Degdep = map(Dep,330,565,150,0);  //Mesure la dépression
+    Degdep = Degdep/10;
+    //int Degdepcal = analogRead(A0); Pour calibrage du capteur MV3P5050
+    if (Degdep < 0){ Degdep = 0; }
+    else if (Degdep > 15){ Degdep = 15; }
     else ;
     
     Serial.print("S");
     Serial.print(",");
     Serial.print(i*40);
     Serial.print(",");
-    Serial.print(Dep);
+    Serial.print(Degdep);
     Serial.print(",");
     Serial.print(D);
     Serial.print(",");
@@ -405,7 +415,7 @@ void demo(){
     Serial.print(",");
     Serial.print("0");
     Serial.print(",");
-    Serial.print("0");
+    Serial.print(Dep);
     Serial.println(",");
     delay(100);
   }
@@ -415,9 +425,9 @@ void loop()   /////////////////////while (1); delay(1000);/////////////////
 ////////////////////////////////////////////////////////////////////////////
 { 
 
-   editcourbe();
+   //editcourbe();
        
-   //demo();
+   demo();
 }
 ////////////////DEBUGGING////////////////////////
 //Voir les macros ps ()à et pc() en début de listing
