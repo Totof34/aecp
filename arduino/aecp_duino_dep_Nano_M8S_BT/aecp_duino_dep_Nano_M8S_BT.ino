@@ -1,17 +1,25 @@
 #include <TimerOne.h> //Génère une interruption toutes les  trech ou Dsecu µs
-
+#include <SoftwareSerial.h>
 //**************************************************************
 //Aecp-Duino    Allumage electronique programmable - Arduino - 2016
 //Mr Loutrel Philippe, voir son site,
 //http://a110a.free.fr/SPIP172/article.php3?id_article=142
 //Mr Dedessus Les Moutier Christophe pour la version Panhard
-char ver[] = "version du 25_12_2016";//Choix entre 3 types de Dwell.
+char ver[] = "version du 02_03_2017";//Choix entre 3 types de Dwell.
 //En option, connexion d'un sélecteur entre la patte A4 et A5 et la masse
 //pour changer de courbe d'avance centrifuge et dépression
 //Les datas envoyées pour Processing sont en fin de boucle loop 
 //T>14ms, correction Christophe.Avance 0°jusqu'a 500t/mn, anti retour de kick
 //Detection et traitement special au demarrage (première etincelle)
 //******************************************************************************
+//Le module BlueTooth est le très courant HC 06 à moins de 5€
+//Connecter la patte TX du module à D11, la patte RX du module à D12
+//Connecter les masses et le Vcc du module au +5V du 7805 
+//Mettre le module BlueTooth en mode AT( pin 34 au +5V ) et entrer AT+UART=38400,1,0
+//38400 bps entre module et smartphone
+//Installer l'appli BlueTerm , connecter: sur l'ecran l'avance enn degrés est affichée
+
+SoftwareSerial BT(11, 12); // RX| TX vers le module BlueTooth HC05/06
 
 //************* ces lignes explique la lecture de la dépression ****************
 // Pour la dépression ci-dessous le tableau des mesures relevés sur un banc Souriau
@@ -47,6 +55,9 @@ const int Dwell = 1; //1 pour alimenter la bobine en permanence sauf 1ms/cycle.E
 // 2 pour alimentation de la bobine seulement trech ms par cycle, 3ms par exemple,
 //indispensable pour bobine 'electronique' ou  de faible resistance: entre 2 et 0.5ohm
 //3 pour simuler un allumage à vis platinées: bobine alimentée 2/3 (66%) du cycle.
+//************************************************************************************
+const int Typedatasend = 3; // 1 pour terminal série, 2 pour laptop avec bluetooth
+// 3 pour smartphone avec bluetooth
 //************************************************************************************
 //*******************MULTICOURBES****IL FAUT TOURNER LE SELECTEUR!!!!!!!*******
 //A la place de la courbe a, on peut selectionner la courbe b, c, d ou la e
@@ -119,12 +130,14 @@ int UneEtin = 1; //=1 pour chaque étincelle, testé par isr_CoupeI et remis à 
 int Ndem = 60;//Vitesse estimée du vilo entrainé par le demarreur en t/mn
 int unsigned long Tdem  = 0;  //Periode correspondante à Ndem,forcée pour le premier tour
 int Mot_OFF = 0;//Sera 1 si moteur detecté arrété par l'isr_GestionIbob()
+float   AV = 0; //Avance en degrès pour transmission vesr module BlueTooth
+float   AVtot = 0; //Avance totale en degrés pour transmission vesr module BlueTooth
 
 float uspardegre = 0;
 int Dep = 0;
 float Degdep = 0;
 int unsigned long Vitesse  = 0;  //vitesse en cours
-int unsigned long Delaideg  = 0;  //µs/deg pour la dépression
+float Delaideg  = 0;  //µs/deg pour la dépression
 // Tableau pour sauver des données temporelle
 unsigned long Stop_temps;
 unsigned long Tempsecoule = 0;
@@ -337,7 +350,9 @@ void  Select_Courbe_depression()////////////while (1); delay(1000);/////////////
 void setup()//////////////////while (1); delay(1000);//////////////////////////
 /////////////////////////////////////////////////////////////////////////
 { deb = 0; //pour debugging, 1 ou 2 sinon 0
-  Serial.begin(115200);//Ligne suivante, 3 Macros du langage C
+  Serial.begin(115200);
+  BT.begin(38400);//Vers module BlueTooth HC05/06
+  BT.flush();//A tout hasard Ligne suivante, 3 Macros du langage C
   Serial.println(__FILE__); Serial.println(__DATE__); Serial.println(__TIME__);
   Serial.println(ver);
   if (Ncyl < 2)Ncyl = 2; //On assimile le mono cylindre au bi, avec une étincelle perdue
@@ -365,7 +380,7 @@ void loop()   /////////////////////while (1); delay(1000);/////////////////
  while (digitalRead(Cible) == !CaptOn); //Attendre front actif de la cible
   T = micros() - prec_H;    //front actif, arrivé calculer T
   prec_H = micros(); //heure du front actuel qui deviendra le front precedent
-  //digitalWrite(Led,LOW); // Décommenter cette ligne pour caller le capteur , voir plus loin la 2ème ligne 388
+  //digitalWrite(Led,LOW); // Décommenter cette ligne pour caller le capteur , voir plus loin la 2ème ligne 414
   Dep = analogRead(A0);
   Degdep = map(Dep,xhigh,xlow,yhigh,ylow);  //Mesure la dépression
   Degdep = Degdep/10;
@@ -398,21 +413,62 @@ void loop()   /////////////////////while (1); delay(1000);/////////////////
   Tant = T; // Sauve la valeur de T en cas de perte d'info du capteur
   //digitalWrite(Led,HIGH);
   
-  Serial.print("S");
-  Serial.print(",");
-  Serial.print(Vitesse);
-  Serial.print(",");
-  Serial.print(Degdep,1);
-  Serial.print(",");
-  Serial.print(D);
-  Serial.print(",");
-  Serial.print(Delaideg);
-  Serial.print(",");
-  Serial.print(Tempsecoule);
-  Serial.print(",");
-  Serial.print(Dep);
-  Serial.println(",");
+  senddata();
      
+}
+
+void senddata(){
+
+  switch (Typedatasend)
+  {
+    case 1:
+     Serial.print("S");
+     Serial.print(",");
+     Serial.print(Vitesse);
+     Serial.print(",");
+     Serial.print(Degdep,1);
+     Serial.print(",");
+     Serial.print(D);
+     Serial.print(",");
+     Serial.print(int(Delaideg));
+     Serial.print(",");
+     Serial.print(Tempsecoule);
+     Serial.print(",");
+     Serial.print(Dep);
+     Serial.println(",");
+    break;
+
+    case 2:
+     BT.print("S,");
+     BT.print(Vitesse);
+     BT.print(",");
+     BT.print(Degdep,1);
+     BT.print(",");
+     BT.print(D);
+     BT.print(",");
+     BT.print(int(Delaideg));
+     BT.print(",");
+     BT.print(Tempsecoule);
+     BT.print(",");
+     BT.print(Dep);
+     BT.println(",");
+    break;
+
+    case 3:
+
+     AV = AngleCapteur - (D /float(Delaideg)) - Avancestatique ;
+     AVtot = AV + Degdep + Avancestatique;
+     BT.print("S,");
+     BT.print(Vitesse);
+     BT.print(",");
+     BT.print(Degdep,1);
+     BT.print(",");
+     BT.print(AV, 1);
+     BT.print(",");
+     BT.print(AVtot, 1);
+     BT.println(",");
+    break;
+  }
 }
 ////////////////DEBUGGING////////////////////////
 //Voir les macros ps ()à et pc() en début de listing
