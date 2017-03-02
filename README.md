@@ -22,6 +22,14 @@ http://a110a.free.fr/SPIP172/plan.php3
 with this startpoint
 ![](images/0Hall_et_Jumo_150106.jpg)
 
+And finally with a Nano V3.0 with a dedicated page here
+http://a110a.free.fr/SPIP172/article.php3?id_article=142
+
+But this project have some child too for exemple 
+https://github.com/michelm63/AEMM
+with a dedicated post here
+http://motos-anglaises.com/phpBB3/viewtopic.php?f=3&t=28953
+
 The prototype of the new board under construction and under kicad
 
 ![](images/aecp_nano_V2_6.JPG)
