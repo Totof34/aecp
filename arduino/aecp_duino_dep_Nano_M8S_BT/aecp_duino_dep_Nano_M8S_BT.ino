@@ -351,7 +351,7 @@ void setup()//////////////////while (1); delay(1000);//////////////////////////
 /////////////////////////////////////////////////////////////////////////
 { deb = 0; //pour debugging, 1 ou 2 sinon 0
   Serial.begin(115200);
-  BT.begin(38400);//Vers module BlueTooth HC05/06
+  BT.begin(115200);//Vers module BlueTooth HC05/06
   BT.flush();//A tout hasard Ligne suivante, 3 Macros du langage C
   Serial.println(__FILE__); Serial.println(__DATE__); Serial.println(__TIME__);
   Serial.println(ver);
