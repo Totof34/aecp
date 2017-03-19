@@ -1,34 +1,93 @@
-/*Interface pour allumage électronique cartographique pour Panhard
-créez sous Processing 3.3 pour smartphone sous Android 4.4.2
+package processing.test.aecp_android_bt_gps;
+
+import processing.core.*; 
+import processing.data.*; 
+import processing.event.*; 
+import processing.opengl.*; 
+
+import android.content.BroadcastReceiver; 
+import android.content.Context; 
+import android.content.Intent; 
+import android.content.IntentFilter; 
+import android.widget.Toast; 
+import android.view.Gravity; 
+import android.bluetooth.BluetoothAdapter; 
+import android.bluetooth.BluetoothDevice; 
+import java.util.UUID; 
+import java.io.IOException; 
+import java.io.InputStream; 
+import java.io.OutputStream; 
+import android.os.Handler; 
+import android.os.Message; 
+import android.util.Log; 
+import android.location.Location; 
+import android.location.LocationListener; 
+import android.location.LocationManager; 
+import android.os.Bundle; 
+import android.bluetooth.BluetoothServerSocket; 
+import android.bluetooth.BluetoothSocket; 
+import controlP5.*; 
+
+import java.util.HashMap; 
+import java.util.ArrayList; 
+import java.io.File; 
+import java.io.BufferedReader; 
+import java.io.PrintWriter; 
+import java.io.InputStream; 
+import java.io.OutputStream; 
+import java.io.IOException; 
+
+public class aecp_android_bt_gps extends PApplet {
+
+/*Interface pour allumage \u00e9lectronique cartographique pour Panhard
+cr\u00e9ez sous Processing 3.3 pour smartphone sous Android 4.4.2
 Adaptation du code issu du commentaire ci-dessous */
 /* ConnectBluetooth: Written by ScottC on 18 March 2013 using 
  Processing version 2.0b8
  Tested on a Samsung Galaxy SII, with Android version 2.3.4
  Android ADK - API 10 SDK platform */
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.widget.Toast;
-import android.view.Gravity;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
+// Import needed Android libs
 
-import java.util.UUID;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
 
-import android.bluetooth.BluetoothServerSocket;
-import android.bluetooth.BluetoothSocket;
-import controlP5.*;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 public BluetoothSocket scSocket;
 
 ControlP5 cp5;
+
+// Set up the variables for the LocationManager and LocationListener
+LocationManager locationManager;
+MyLocationListener locationListener;
+
+// Variables to hold the current GPS data
+float currentLatitude  = 0;
+float currentLongitude = 0;
+float currentAccuracy  = 0;
+float currentSpeed = 0;
+String currentProvider = "";
 
 int myColorBackground = color(150,150,150);
 int knobValue = 100;
@@ -58,6 +117,8 @@ Textlabel myTextlabel4rpm;
 Textlabel myTextlabel5rpm;
 Textlabel myTextlabel6rpm;
 Textlabel myTextlabel7rpm;
+Textlabel myTextlabelSPEED;
+Textlabel myTextlabelSPEEDunit;
 
 
 
@@ -67,28 +128,31 @@ boolean BTisConnected=false; //When true, the screen turns purple.
 PFont myFont ;
 PFont myFont2 ;
 
-char HEADERSPEED = 'S'; // C'est le caractère que l'on a inséré avant la valeur de vitesse
+char HEADERSPEED = 'S'; // C'est le caract\u00e8re que l'on a ins\u00e9r\u00e9 avant la valeur de vitesse
 
 int speedValue; // Une variable pour stocker la valeur de vitesse
-float pressionValue; // Une variable qui stocke le nombre de degré de dépression
-float delayValue; // Une variable pour stocker la valeur du délai
-float avtotValue; // Une variable pour stocker la valeur du délai d'un degré
+float pressionValue; // Une variable qui stocke le nombre de degr\u00e9 de d\u00e9pression
+float delayValue; // Une variable pour stocker la valeur du d\u00e9lai
+float avtotValue; // Une variable pour stocker la valeur du d\u00e9lai d'un degr\u00e9
 
-color blaC = color(0,0,0); // noir
-color oraC = color(245,110,5); // orange
-color blC = color(10,10,255); // bleu
-color reC = color(255,10,10);// rouge
-color grC = color(10,255,10); // vert
-color yeC = color(252,252,41,255); // jaune
-color goC = color(175,152,18); // or
-color textblack = color(0); // écrit du texte en noir
-color textwhite = color(255); // écrit du texte en blanc
+int blaC = color(0,0,0); // noir
+int oraC = color(245,110,5); // orange
+int blC = color(10,10,255); // bleu
+int reC = color(255,10,10);// rouge
+int grC = color(10,255,10); // vert
+int yeC = color(252,252,41,255); // jaune
+int goC = color(175,152,18); // or
+int textblack = color(0); // \u00e9crit du texte en noir
+int textwhite = color(255); // \u00e9crit du texte en blanc
 
 // Message types used by the Handler
 public static final int MESSAGE_WRITE = 1;
 public static final int MESSAGE_READ = 2;
 String readMessage="";
 String[] sData = new String[10];
+
+boolean hasSpeed;
+float speed;
 
 //Used to send bytes to the Arduino
 SendReceiveBytes sendReceiveBT = null;
@@ -139,10 +203,10 @@ private final Handler mHandler = new Handler() {
  // construct a string from the valid bytes in the buffer
  String readMessage = new String(readBuf, 0, msg.arg1);
  //print(readMessage);
- // On découpe le message à chaque virgule, on le stocke dans un tableau
+ // On d\u00e9coupe le message \u00e0 chaque virgule, on le stocke dans un tableau
  String [] data = readMessage.split(",");
 
-//Message reçu pour la vitesse
+//Message re\u00e7u pour la vitesse
  if (data[0].charAt(0) == HEADERSPEED)
  {
  // On convertit la valeur (String -> Int)
@@ -180,9 +244,9 @@ private final Handler mHandler = new Handler() {
 
 
 
-void setup(){
+public void setup(){
  orientation(PORTRAIT);
- fullScreen();
+ 
   noStroke();
   fill(0);
   
@@ -213,65 +277,66 @@ void setup(){
   myKnobRPM = cp5.addKnob("T/min")
                .setRange(0,7000)
                .setValue(0)
+               .setLabelVisible(false)
                .setPosition(((width/2)-radiusknobA),90)
                .setRadius(radiusknobA)
                .setNumberOfTickMarks(7)
                .setTickMarkLength(6)
-               .setTickMarkWeight(5.0)
+               .setTickMarkWeight(5.0f)
                .setColorForeground(color(255))
                .setColorActive(color(255,0,0))
                .snapToTickMarks(false)
-               .setDragDirection(Knob.VERTICAL)
                ;
                      
   myKnobDEP = cp5.addKnob("AV Dep")
-               .setStartAngle(3.14)
-               .setAngleRange(3.14)
+               .setStartAngle(3.14f)
+               .setAngleRange(3.14f)
                .setShowAngleRange(true)
                .setRange(0,20)
                .setValue(0)
+               .setLabelVisible(false)
                .setPosition(25,355)
                .setRadius(radiusknobB)
                .setNumberOfTickMarks(10)
                .setTickMarkLength(5)
-               .setTickMarkWeight(3.0)
+               .setTickMarkWeight(3.0f)
                .snapToTickMarks(false)
                .setColorForeground(color(255))
                .setColorBackground(color(0, 160, 100))
                .setColorActive(color(255,255,0))
-               .setDragDirection(Knob.HORIZONTAL)
                ;
                
   myKnobCENT = cp5.addKnob("AV Cent")
-               .setStartAngle(3.14)
-               .setAngleRange(3.14)
+               .setStartAngle(3.14f)
+               .setAngleRange(3.14f)
                .setShowAngleRange(true)
                .setRange(0,20)
                .setValue(0)
+               .setLabelVisible(false)
                .setPosition((width/2)+20,355)
                .setRadius(radiusknobC)
                .setNumberOfTickMarks(10)
                .setTickMarkLength(5)
-               .setTickMarkWeight(3.0)
+               .setTickMarkWeight(3.0f)
                .snapToTickMarks(false)
                .setColorForeground(color(255))
                .setColorBackground(color(10, 220, 20))
                .setColorActive(color(255,255,0))
-               .setDragDirection(Knob.HORIZONTAL)
                ;
+               
   myKnobTOT = cp5.addKnob("AV Total")
                .setRange(0,50)
                .setValue(0)
+               .setLabelVisible(false)
                .setPosition(((width/2)-radiusknobD),555)
                .setRadius(radiusknobD)
                .setNumberOfTickMarks(25)
                .setTickMarkLength(5)
-               .setTickMarkWeight(3.0)
+               .setTickMarkWeight(3.0f)
                .snapToTickMarks(false)
                .setColorForeground(color(255))
                .setColorBackground(color(0, 80, 100))
                .setColorActive(color(255,255,0))
-               .setDragDirection(Knob.HORIZONTAL)
                ;
                  
  myTextlabelTitle = cp5.addTextlabel("aecp pour smartphone")
@@ -331,14 +396,14 @@ void setup(){
                   
  myTextlabelRPM = cp5.addTextlabel("RPM")
                     .setText("0")
-                    .setPosition(195,250)
+                    .setPosition(195,260)
                     .setColorValue(0xffffff00)
                     .setFont(myFont)
                     ;                
                   
  myTextlabelRPMunit = cp5.addTextlabel("T min")
                     .setText("T/min")
-                    .setPosition(190,290)
+                    .setPosition(190,300)
                     .setColorValue(0xffffff00)
                     .setFont(myFont)
                     ;
@@ -350,8 +415,8 @@ void setup(){
                     .setFont(myFont)
                     ;                   
                     
- myTextlabelDEPunit = cp5.addTextlabel("° DEP")
-                    .setText("° Dep")
+ myTextlabelDEPunit = cp5.addTextlabel("\u00b0 DEP")
+                    .setText("\u00b0 Dep")
                     .setPosition(70,510)
                     .setColorValue(0xffffff00)
                     .setFont(myFont)
@@ -364,8 +429,8 @@ void setup(){
                     .setFont(myFont)
                     ;                   
                      
- myTextlabelCENTunit = cp5.addTextlabel("° CENT")
-                    .setText("° Cent")
+ myTextlabelCENTunit = cp5.addTextlabel("\u00b0 CENT")
+                    .setText("\u00b0 Cent")
                     .setPosition(300,510)
                     .setColorValue(0xffffff00)
                     .setFont(myFont)
@@ -378,19 +443,33 @@ void setup(){
                     .setFont(myFont)
                     ;                     
                     
- myTextlabelTOTunit = cp5.addTextlabel("° AV TOT")
-                    .setText("° Av Tot")
+ myTextlabelTOTunit = cp5.addTextlabel("\u00b0 AV TOT")
+                    .setText("\u00b0 Av Tot")
                     .setPosition(170,740)
                     .setColorValue(0xffffff00)
                     .setFont(myFont)
-                    ;                   
+                    ; 
+                    
+ myTextlabelSPEED = cp5.addTextlabel("SPEED")
+                    .setText("0")
+                    .setPosition(205,170)
+                    .setColorValue(textwhite)
+                    .setFont(myFont)
+                    ; 
+             
+ myTextlabelSPEEDunit = cp5.addTextlabel("Km/h")
+                    .setText("Km/h")
+                    .setPosition(190,210)
+                    .setColorValue(textwhite)
+                    .setFont(myFont)
+                    ;            
                   
 }
 
 
 
 
-void draw(){
+public void draw(){
  //Display a green screen if a device has been found,
  //Display a purple screen when a connection is made to the device
  if(foundDevice){
@@ -410,6 +489,7 @@ void draw(){
  myTextlabelDEP.setText(str(pressionValue));
  myTextlabelCENT.setText(str(delayValue));
  myTextlabelTOT.setText(str(avtotValue));
+ myTextlabelSPEED.setText(str(PApplet.parseInt(currentSpeed)));
  
  
  
@@ -421,6 +501,8 @@ void draw(){
  }
  
 }
+
+
 
 
 
@@ -606,12 +688,84 @@ private class SendReceiveBytes implements Runnable {
 }
  
  
+ // Override the activity class methods
+public void onResume()
+{
+  super.onResume();
+
+  locationListener = new MyLocationListener();
+  locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);    
+
+  // Register the listener with the Location Manager to receive location updates
+  locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+}
+
+public void onPause()
+{
+  super.onPause();
+}
+
+/*****************************************************************/
+
+// Class for capturing the GPS data
+class MyLocationListener implements LocationListener
+{
+  
+  private Location lastLocation = null;
+  private double calculatedSpeed = 0;
+  // Define all LocationListener methods
+  public void onLocationChanged(Location location)
+  {
+    // Save new GPS data
+    //currentLatitude  = (float)location.getLatitude();
+    //currentLongitude = (float)location.getLongitude();
+    //currentAccuracy  = (float)location.getAccuracy();
+    //currentProvider  = location.getProvider();
+    if (lastLocation != null) {
+            double elapsedTime = (location.getTime() - lastLocation.getTime()) / 1000; // Convert milliseconds to seconds
+            calculatedSpeed = lastLocation.distanceTo(location) / elapsedTime;
+        }
+        this.lastLocation = location;
+
+        double speed = location.hasSpeed() ? location.getSpeed() : calculatedSpeed;
+
+        /* There you have it, a speed value in m/s */
+
+    currentSpeed = (float)(speed * 3.6f);
+  }
+
+  public void onProviderDisabled (String provider)
+  { 
+    currentProvider = "";
+  }
+
+  public void onProviderEnabled (String provider)
+  { 
+    currentProvider = provider;
+  }
+
+  public void onStatusChanged (String provider, int status, Bundle extras)
+  {
+    // Nothing yet...
+  }
+}
+ 
 
 /* My ToastMaster function to display a messageBox on the screen */
-void ToastMaster(String textToDisplay){
+public void ToastMaster(String textToDisplay){
  Toast myMessage = Toast.makeText(getActivity().getApplicationContext(), 
  textToDisplay,
  Toast.LENGTH_SHORT);
  myMessage.setGravity(Gravity.CENTER, 0, 0);
  myMessage.show();
+}
+  public void settings() {  fullScreen(); }
+  static public void main(String[] passedArgs) {
+    String[] appletArgs = new String[] { "aecp_android_bt_gps" };
+    if (passedArgs != null) {
+      PApplet.main(concat(appletArgs, passedArgs));
+    } else {
+      PApplet.main(appletArgs);
+    }
+  }
 }
