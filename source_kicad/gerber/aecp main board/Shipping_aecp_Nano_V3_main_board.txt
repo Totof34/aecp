@@ -21,11 +21,12 @@ Country           : France
 Shipping Method   : Registered Airmail
 Payment Method    : PayPal
 
-Mr Chanteperdrix Roger
-7 impasse les pêchers
-34670 Baillargues
-France
+Votre adresse
+Votre adresse
+Votre adresse
+Votre adresse
 
-Phone    : +334.67.87.15.21
+
+Phone    : +33
 Username :  
-mail     : chanteperdrix34@gmail.com
+mail     :

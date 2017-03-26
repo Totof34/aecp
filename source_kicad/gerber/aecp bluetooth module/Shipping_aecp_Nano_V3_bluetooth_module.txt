@@ -1,4 +1,4 @@
-aecp_Nano_V3_hall_sensor - 05/11/2016 
+aecp_Nano_V3_bluetooth_module - 26/03/2017 
 
 Amount of Layers  : 2
 PCB Thickness     : 1.6 mm
@@ -11,8 +11,8 @@ Peel Off          : No
 Electric Test     : No
 Production Time   : Standard
 Delivery Form     : Single PCB
-PCB Dimension X   : 28.00 mm
-PCB Dimension Y   : 10.00 mm
+PCB Dimension X   : 43.00 mm
+PCB Dimension Y   : 20.00 mm
 Quantity          : 20
 Price per Piece   : x.xx €
 Subtotal          : x.xx €
@@ -26,6 +26,8 @@ Votre adresse
 Votre adresse
 Votre adresse
 
-Phone    : +33
+
+Phone    : +33 
 Username :  
-mail     :
+mail     : 
+
