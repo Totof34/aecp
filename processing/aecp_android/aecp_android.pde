@@ -571,7 +571,7 @@ void draw() {
         c1.enableShortcuts();
         c1.setBackground( color( 250, 220, 150 ) );
         c1.addButton("aecp pour smartphone").setSize(width, 40).setPosition( 0, 0 ).setFont(myFont).setColorBackground(color(0));
-        c1.addButton("Exit").setSize(100, 40).setPosition( ((width/2)-50), (height-40) ).setFont(myFont).setId(1);
+        c1.addButton("Sortir").setSize(140, 40).setPosition( ((width/2)-70), (height-50) ).setFont(myFont).setId(1);
         cc = new MyCanvas();
         cc.pre(); // use cc.post(); to draw on top of existing controllers.
         c1.addCanvas(cc); // add the canvas to cp5
@@ -596,9 +596,9 @@ class MyCanvas extends Canvas {
 
   public void setup(PGraphics pg) {
     xcentOrigin = (( width/2 ) - ( rangeSpeed/2 )); // Position du graphique de l'avance centrifuge
-    ycentOrigin = height-80;
+    ycentOrigin = height-100;
     xdepOrigin = (( width/2 ) - ( rangeMmhg/2 )); // Position du graphique de l'avance dépression
-    ydepOrigin = ((height/2)-80);
+    ydepOrigin = ((height/2)-100);
 
     mylastx = ( xcentOrigin + rangeSpeed +1 ); // +1 pour finir de tracer le cadrillage
     mylasty = ( ycentOrigin - rangeCent -1 ); // -1 pour finir de tracer le cadrillage
@@ -622,7 +622,7 @@ class MyCanvas extends Canvas {
     }
 
     pg.fill(blaC);
-    pg.text("Avance centrifuge", ((width/2)-140), ((height/2)+80));
+    pg.text("Avance centrifuge", ((width/2)-140), ((height/2)+70));
 
     pg.text(0, xcentOrigin-10, ycentOrigin+30);
     pg.text(1, xcentOrigin+40, ycentOrigin+30);
@@ -653,7 +653,7 @@ class MyCanvas extends Canvas {
     }
 
     pg.fill(blaC);
-    pg.text("Avance dépression", ((width/2)-140), 80);
+    pg.text("Avance dépression", ((width/2)-140), 70);
 
     pg.text(5, xdepOrigin-25, ydepOrigin-50);
     pg.text(10, xdepOrigin-40, ydepOrigin-100);
@@ -661,14 +661,14 @@ class MyCanvas extends Canvas {
 
     pg.textFont(myFont3);
     pg.text(0, xdepOrigin-10, ydepOrigin+30);
-    pg.text(50, xdepOrigin+40, ydepOrigin+30);
-    pg.text(100, xdepOrigin+85, ydepOrigin+30);
-    pg.text(150, xdepOrigin+135, ydepOrigin+30);
-    pg.text(200, xdepOrigin+185, ydepOrigin+30);
-    pg.text(250, xdepOrigin+235, ydepOrigin+30);
-    pg.text(300, xdepOrigin+285, ydepOrigin+30);
+    pg.text(50, xdepOrigin+35, ydepOrigin+30);
+    pg.text(100, xdepOrigin+80, ydepOrigin+30);
+    pg.text(150, xdepOrigin+130, ydepOrigin+30);
+    pg.text(200, xdepOrigin+180, ydepOrigin+30);
+    pg.text(250, xdepOrigin+230, ydepOrigin+30);
+    pg.text(300, xdepOrigin+280, ydepOrigin+30);
 
-    pg.text("mmhg", xdepOrigin+290, ydepOrigin+60);
+    pg.text("mmhg", xdepOrigin+300, ydepOrigin+60);
     pg.text("d°", xdepOrigin-25, ydepOrigin-200);
     pg.textFont(myFont);
 
@@ -716,11 +716,12 @@ class MyCanvas extends Canvas {
       }
     }
 
-    pg.text("Avance Statique", ((width/2)-130), ((height/2)-10));
+    pg.text("Avance Statique", ((width/2)-130), ((height/2)-30));
     pg.fill(whiC);
-    pg.rect(((width/2)-30), (height/2), 60, 40);
+    pg.rect(((width/2)-30), (height/2)-10, 60, 40);
     pg.fill(blaC);
-    pg.text(str(staticValue), ((width/2)-20), ((height/2)+30));
+    pg.text(str(staticValue), ((width/2)-20), ((height/2)+20));
+    pg.text("d°", ((width/2)+40), ((height/2)+20));
   }
 }
 

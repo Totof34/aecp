@@ -1,17 +1,25 @@
 #include <TimerOne.h> //Génère une interruption toutes les  trech ou Dsecu µs
-
+#include <SoftwareSerial.h>
 //**************************************************************
 //Aecp-Duino    Allumage electronique programmable - Arduino - 2016
 //Mr Loutrel Philippe, voir son site,
 //http://a110a.free.fr/SPIP172/article.php3?id_article=142
 //Mr Dedessus Les Moutier Christophe pour la version Panhard
-char ver[] = "version du 25_12_2016";//Choix entre 3 types de Dwell.
+char ver[] = "version du 18_04_2017";//Choix entre 3 types de Dwell.
 //En option, connexion d'un sélecteur entre la patte A4 et A5 et la masse
 //pour changer de courbe d'avance centrifuge et dépression
 //Les datas envoyées pour Processing sont en fin de boucle loop 
 //T>14ms, correction Christophe.Avance 0°jusqu'a 500t/mn, anti retour de kick
 //Detection et traitement special au demarrage (première etincelle)
 //******************************************************************************
+//Le module BlueTooth est le très courant HC 06 à moins de 5€
+//Connecter la patte TX du module à D11, la patte RX du module à D12
+//Connecter les masses et le Vcc du module au +5V du 7805 
+//Mettre le module BlueTooth en mode AT( pin 34 au +5V ) et entrer AT+UART=38400,1,0
+//38400 bps entre module et smartphone
+//Installer l'appli BlueTerm , connecter: sur l'ecran l'avance enn degrés est affichée
+
+SoftwareSerial BT(11, 12); // RX| TX vers le module BlueTooth HC05/06
 
 //************* ces lignes explique la lecture de la dépression ****************
 // Pour la dépression ci-dessous le tableau des mesures relevés sur un banc Souriau
@@ -35,6 +43,15 @@ int ylow = 0;// valeur de la limite en degré basse soit 0 degré
 int Na[] = {0,1240,2050,2500,3400,4100,4200,7000, 0};
 //degrés d'avance vilebrequin correspondant soit en tour volant moteur ( attention ! ):
 int Anga[] = {0,0,4,6,10,14,16,16, 0};
+
+int arrayVitesse[] = {1440,1320,1360,1240,1240,1240,1200,1200,1240,1160,1200,1200,1160,1200,1200,1120,1200,1640,2120,2000,1960,1880,1720,1560,1600,1920,2240,2480,
+2800,2960,3280,3600,3760,4000,4240,4360,3840,3320,2840,2520,2200,2000,2080,2200,2200,2240,2280,2240,2160,2160,2040,1920,1800,1720,1720,1680,1480,1640,1600,1680,1720,
+1800,1920,1960,2040,2120,2160,2320,2360,2440,2440,2360,2400,2320,2320,2240,2240,2160,2120,2080,1960,1880,1760,1600,1480,1360,1360,1320,1320,1200,1160,1240,1320,1760,
+1880,1920,1800,1640,1560,1880,2120,2280,2640,3260,3820,4240,4960,5580,6160,6260,5760,5280,4840,3480,2840,2040,2160,2200,2280,2320,2400,2520,2600,2640,2760,2800,2800,
+2840,2840,2920,2920,3000,3080,3080,3040,3080,3040,3080,3000,2960,2920,2840,2840,2720,2600,2480,2360,2280,2200,2120,2080,2000,1880,1800,1600};
+float arrayDep[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,15,13,6,6,7,5,7,7,7,7,5,5,5,5,6,4,4,6,0,0,0,0,15,7,5,7,9,14,15,0,0,0,0,0,0,0,0,0,0,13,4,4,3,0,0,0,0,1,1,3,7,
+8,15,3,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,6,5,4,3,2,3,5,3,1,2,3,4,3,3,0,0,0,0,0,15,6,5,1,1,3,4,2,1,3,3,7,15,15,6,5,6,9,15,14,15,15,15,15,15,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,};
 
 int Ncyl = 2;           //Nombre de cylindres, moteur Panhard
 const int AngleCapteur = 90; //le capteur(Hall) est 45° avant le PMH habituellement
@@ -108,12 +125,16 @@ int UneEtin = 1; //=1 pour chaque étincelle, testé par isr_CoupeI et remis à 
 int Ndem = 60;//Vitesse estimée du vilo entrainé par le demarreur en t/mn
 int unsigned long Tdem  = 0;  //Periode correspondante à Ndem,forcée pour le premier tour
 int Mot_OFF = 0;//Sera 1 si moteur detecté arrété par l'isr_GestionIbob()
+int Vitesse = 0; //Vitesse de rotation moteur
+float   AV = 0; //Avance en degrès pour transmission vers module BlueTooth
+float   AVtot = 0; //Avance totale en degrés pour transmission vers module BlueTooth
+String Message = ""; //Données renvoyer au smartphone ou pc via bluetooth ou usb
 
 float uspardegre = 0;
 int Dep = 0;
 float Degdep = 0;
-int unsigned long Vitesse  = 0;  //vitesse en cours
-int unsigned long Delaideg  = 0;  //µs/deg pour la dépression
+
+float Delaideg  = 0;  //µs/deg pour la dépression
 // Tableau pour sauver des données temporelle
 unsigned long Stop_temps;
 unsigned long Tempsecoule = 0;
@@ -276,6 +297,8 @@ void setup()//////////////////while (1); delay(1000);//////////////////////////
 /////////////////////////////////////////////////////////////////////////
 { deb = 0; //pour debugging, 1 ou 2 sinon 0
   Serial.begin(115200);//Ligne suivante, 3 Macros du langage C
+  BT.begin(115200);//Vers module BlueTooth HC05/06
+  BT.flush();//A tout hasard Ligne suivante, 3 Macros du langage C
   Serial.println(__FILE__); Serial.println(__DATE__); Serial.println(__TIME__);
   Serial.println(ver);
   if (Ncyl < 2)Ncyl = 2; //On assimile le mono cylindre au bi, avec une étincelle perdue
@@ -295,26 +318,13 @@ void setup()//////////////////while (1); delay(1000);//////////////////////////
 }
 
 
-void editcourbe(){
-  for(int i = 0; i < 176; i++)
-    {
-    T = NT/(i*40) ;
+void demoBTsmartphone(){
+  for(int i = 1; i < 160; i++){
+    Vitesse = arrayVitesse[i];
+    T = NT/(Vitesse) ;
     uspardegre = (T/float(AngleCibles));
     CalcD();
-            
-    Serial.print(i*40);
-    Serial.print(",");
-    Serial.print(D);
-    Serial.print(",");
-    Serial.println(uspardegre,0);
-    }
-}
-
-void demo(){
-  for(int i = 1; i < 176; i++){
-    T = NT/(i*40) ;
-    uspardegre = (T/float(AngleCibles));
-    CalcD();
+    //Degdep = arrayDep[i];
     Dep = analogRead(A0);
     Degdep = map(Dep,330,565,150,0);  //Mesure la dépression
     Degdep = Degdep/10;
@@ -322,27 +332,20 @@ void demo(){
     if (Degdep < 0){ Degdep = 0; }
     else if (Degdep > 15){ Degdep = 15; }
     else ;
+    AV = AngleCapteur - (D /float(uspardegre)) - Avancestatique ;
+    AVtot = AV + Degdep + Avancestatique;
+    Message = ("S,"+String(Vitesse)+(",")+String(Degdep,1)+(",")+String(AV, 1)+(",")+String(AVtot,1)+(",")+String(Dep)+(","));
     
-    Serial.print("S");
-    Serial.print(",");
-    Serial.print(i*40);
-    Serial.print(",");
-    Serial.print(Degdep);
-    Serial.print(",");
-    Serial.print(D);
-    Serial.print(",");
-    Serial.print(uspardegre,0);
-    Serial.print(",");
-    Serial.print("0");
-    Serial.print(",");
-    Serial.print(Dep);
-    Serial.println(",");
-    delay(100);
+     BT.println(Message);
+     
+    delay(200);
   }
-  for(int i = 174; i > 0; i--){
-    T = NT/(i*40) ;
+  for(int i = 160; i > 0; i--){
+    Vitesse = arrayVitesse[i];
+    T = NT/(Vitesse) ;
     uspardegre = (T/float(AngleCibles));
     CalcD();
+    //Degdep = arrayDep[i];
     Dep = analogRead(A0);
     Degdep = map(Dep,330,565,150,0);  //Mesure la dépression
     Degdep = Degdep/10;
@@ -350,22 +353,14 @@ void demo(){
     if (Degdep < 0){ Degdep = 0; }
     else if (Degdep > 15){ Degdep = 15; }
     else ;
+    AV = AngleCapteur - (D /float(uspardegre)) - Avancestatique ;
+    AVtot = AV + Degdep + Avancestatique;
+     
+     Message = ("S,"+String(Vitesse)+(",")+String(Degdep,1)+(",")+String(AV, 1)+(",")+String(AVtot,1)+(",")+String(Dep)+(","));
     
-    Serial.print("S");
-    Serial.print(",");
-    Serial.print(i*40);
-    Serial.print(",");
-    Serial.print(Degdep);
-    Serial.print(",");
-    Serial.print(D);
-    Serial.print(",");
-    Serial.print(uspardegre,0);
-    Serial.print(",");
-    Serial.print("0");
-    Serial.print(",");
-    Serial.print(Dep);
-    Serial.println(",");
-    delay(100);
+     BT.println(Message);
+     
+    delay(200);
   }
 }
 ///////////////////////////////////////////////////////////////////////////
@@ -373,9 +368,7 @@ void loop()   /////////////////////while (1); delay(1000);/////////////////
 ////////////////////////////////////////////////////////////////////////////
 { 
 
-   editcourbe();
-       
-   //demo();
+   demoBTsmartphone();
 }
 ////////////////DEBUGGING////////////////////////
 //Voir les macros ps ()à et pc() en début de listing
