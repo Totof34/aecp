@@ -1,6 +1,0 @@
-# view res/layout/main.xml #generated:1
--keep class .aecp_android_2 { <init>(...); }
-
-# view AndroidManifest.xml #generated:5
--keep class processing.test.aecp_android_2.MainActivity { <init>(...); }
-

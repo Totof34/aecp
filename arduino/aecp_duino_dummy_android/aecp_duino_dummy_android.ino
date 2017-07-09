@@ -326,11 +326,11 @@ void demoBTsmartphone(){
     CalcD();
     //Degdep = arrayDep[i];
     Dep = analogRead(A0);
-    Degdep = map(Dep,330,565,150,0);  //Mesure la dépression
+    Degdep = map(Dep,330,565,300,0);  //Mesure la dépression
     Degdep = Degdep/10;
     //int Degdepcal = analogRead(A0); Pour calibrage du capteur MV3P5050
     if (Degdep < 0){ Degdep = 0; }
-    else if (Degdep > 15){ Degdep = 15; }
+    else if (Degdep > 30){ Degdep = 30; }
     else ;
     AV = AngleCapteur - (D /float(uspardegre)) - Avancestatique ;
     AVtot = AV + Degdep + Avancestatique;
@@ -351,7 +351,7 @@ void demoBTsmartphone(){
     Degdep = Degdep/10;
     //int Degdepcal = analogRead(A0); Pour calibrage du capteur MV3P5050
     if (Degdep < 0){ Degdep = 0; }
-    else if (Degdep > 15){ Degdep = 15; }
+    else if (Degdep > 30){ Degdep = 30; }
     else ;
     AV = AngleCapteur - (D /float(uspardegre)) - Avancestatique ;
     AVtot = AV + Degdep + Avancestatique;

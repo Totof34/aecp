@@ -137,11 +137,12 @@ int coefSpeed = 20; // Un coefficient multiplicateur pour afficher les résulats
 int coefCent = 10; // Un coefficient multiplicateur pour afficher les résulats 
 int coefDep = 5; // Un coefficient multiplicateur pour afficher les résulats
 int coefTot = 10; // Un coefficient multiplicateur pour afficher les résulats
+float coefAffTot = 0.68; // Pour corriger l'affichage de l'avance totale sur la hauteur de l'écran 65° tout de même !!! 
 int rangeSpeed = 350; // Une variable pour le dimensionement et la position de l'affichage, ici vitesse maxi/coefSpeed = 7000/20
 int rangeCent = 200; // Une variable pour le dimensionement et la position de l'affichage, ici avance centrifuge maxi*coefCent = 20*10
 int rangeDep = 200; // Une variable pour le dimensionement et la position de l'affichage, ici avance dépression maxi*coefDep = 20*10
 int rangeMmhg = 300; // Une variable pour le dimensionement et la position de l'affichage, ici mm de mercure maxi = 300
-int rangeTot = 500; // Une variable pour le dimensionement et la position de l'affichage, ici avance dépression maxi*coefTot = 50*10
+int rangeTot = 442; // Une variable pour le dimensionement et la position de l'affichage, ici avance dépression maxi*coefTot = 50*10
 int rangeTime = 400; //Une variable pour le dimensionement et la position de l'affichage, ici temps passé par rapport à la largeur d'écran
 
 float[] myspeed = new float[700]; // Tableau pour sauvegarder les données envoyées par la Nano V3.0
@@ -363,7 +364,7 @@ void setup() {
     .setLabelVisible(false)
     .setPosition(25, 350)
     .setRadius(radiusknobB)
-    .setNumberOfTickMarks(10)
+    .setNumberOfTickMarks(9)
     .setTickMarkLength(5)
     .setTickMarkWeight(3.0)
     .snapToTickMarks(false)
@@ -381,7 +382,7 @@ void setup() {
     .setLabelVisible(false)
     .setPosition((width/2)+25, 350)
     .setRadius(radiusknobC)
-    .setNumberOfTickMarks(10)
+    .setNumberOfTickMarks(9)
     .setTickMarkLength(5)
     .setTickMarkWeight(3.0)
     .snapToTickMarks(false)
@@ -391,12 +392,12 @@ void setup() {
     ;
 
   myKnobTOT = cp5.addKnob("AV Total")
-    .setRange(0, 60)
+    .setRange(15, 65)
     .setValue(0)
     .setLabelVisible(false)
     .setPosition(((width/2)-radiusknobD), 525)
     .setRadius(radiusknobD)
-    .setNumberOfTickMarks(25)
+    .setNumberOfTickMarks(24)
     .setTickMarkLength(5)
     .setTickMarkWeight(3.0)
     .snapToTickMarks(false)
@@ -798,7 +799,7 @@ class MyCanvasTOT extends Canvas {
 
   public void setup(PGraphics pg) {
     xtotOrigin = (( width/2 ) - ( rangeTime/2 )); // Position du graphique de l'avance centrifuge
-    ytotOrigin = height-150;
+    ytotOrigin = height-165;
     
     mylastxtot = ( xtotOrigin + rangeTime +1 ); // +1 pour finir de tracer le cadrillage
     mylastytot = ( ytotOrigin - rangeTot -1 ); // -1 pour finir de tracer le cadrillage
@@ -815,7 +816,7 @@ class MyCanvasTOT extends Canvas {
     {
       pg.line(i, mylastytot, i, ytotOrigin);// ligne verticale
     }
-    for (int i = ytotOrigin; i > mylastytot; i = i-50) 
+    for (int i = ytotOrigin; i > mylastytot; i = i-34) 
     {
       pg.line(xtotOrigin, i, mylastxtot, i); // ligne horizontale
     }
@@ -833,20 +834,23 @@ class MyCanvasTOT extends Canvas {
     pg.text(nfc(avtotValue,1), xtotOrigin+335,ytotOrigin+60);
     
     pg.fill(blaC);
-    pg.text("Avance totale", ((width/2)-110), ((height/2)-270));
+    pg.text("Avance totale", ((width/2)-110), ((height/2)-260));
     
-    pg.text(5, xtotOrigin-25, ytotOrigin-50);
-    pg.text(10, xtotOrigin-40, ytotOrigin-100);
-    pg.text(15, xtotOrigin-40, ytotOrigin-150);
-    pg.text(20, xtotOrigin-40, ytotOrigin-200);
-    pg.text(25, xtotOrigin-40, ytotOrigin-250);
-    pg.text(30, xtotOrigin-40, ytotOrigin-300);
-    pg.text(35, xtotOrigin-40, ytotOrigin-350);
-    pg.text(40, xtotOrigin-40, ytotOrigin-400);
-    pg.text(45, xtotOrigin-40, ytotOrigin-450);
+    pg.text(5, xtotOrigin-25, ytotOrigin-30);
+    pg.text(10, xtotOrigin-40, ytotOrigin-64);
+    pg.text(15, xtotOrigin-40, ytotOrigin-98);
+    pg.text(20, xtotOrigin-40, ytotOrigin-132);
+    pg.text(25, xtotOrigin-40, ytotOrigin-166);
+    pg.text(30, xtotOrigin-40, ytotOrigin-200);
+    pg.text(35, xtotOrigin-40, ytotOrigin-234);
+    pg.text(40, xtotOrigin-40, ytotOrigin-268);
+    pg.text(45, xtotOrigin-40, ytotOrigin-302);
+    pg.text(50, xtotOrigin-40, ytotOrigin-336);
+    pg.text(55, xtotOrigin-40, ytotOrigin-370);
+    pg.text(60, xtotOrigin-40, ytotOrigin-404);
 
     pg.textFont(myFont3);
-    pg.text("d°", xtotOrigin-25, ytotOrigin-500);
+    pg.text("d°", xtotOrigin-25, ytotOrigin-440);
     pg.text("dep", xtotOrigin+55,ytotOrigin+30);
     pg.text("cent", xtotOrigin+155,ytotOrigin+30);
     pg.text("fix", xtotOrigin+255,ytotOrigin+30);
@@ -985,9 +989,9 @@ public void storetot(){
    float dep = 0;
    float fix = 0;
    
-   tot = avtotValue*coefTot;
-   av = delayValue*coefCent;  
-   dep = pressionValue*coefDep*2; // *2 pour harmoniser les coefCent, coefDep et coefTot
+   tot = int(avtotValue*coefTot*coefAffTot);
+   av = int(delayValue*coefCent*coefAffTot);  
+   dep = int(pressionValue*coefDep*2*coefAffTot); // *2 pour harmoniser les coefCent, coefDep et coefTot
    fix = tot - dep - av;
    
    myadvancetot [c][0] = fix;
