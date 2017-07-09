@@ -13,7 +13,9 @@ http://www.audiyofan.org/forum/viewtopic.php?f=71&t=9221
 
 PCB & schema are designed with Kicad
 
-the new board uses a Atmega328 and usb link to transmit some data to the PC
+the new board uses a Atmega328 and usb link or a bluetooth module ( HC-05 or 06 )
+to transmit some data to the PC
+
 it's a Arduino Nano_V3
 
 The idea comes from this site
