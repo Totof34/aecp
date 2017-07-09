@@ -45,7 +45,7 @@ int Na[] = {0,1240,2050,2500,3400,4100,4200,7000, 0};
 int Anga[] = {0,0,0,0,0,0,0,0,0};
 
 int Ncyl = 2;           //Nombre de cylindres, moteur Panhard
-const int AngleCapteur = 90; //le capteur(Hall) est 45° avant le PMH habituellement
+const int AngleCapteur = 90; //le capteur(Hall) est 90° avant le PMH habituellement sur nos moteurs Panhards
 const int Avancestatique = 32; // Correspond à 9 dents d'avance statique sur volant moteur
 int Decalavancestatique = 0;
 const int CaptOn = 0;  //CapteurOn = 1 déclenche sur front montant (capteur saturé)
@@ -305,42 +305,42 @@ void  Select_Courbe_depression()////////////while (1); delay(1000);/////////////
   if (valPot2 < 99) {                  // Shunt 0 ohm donne 15 
     xhigh = 330; // soit 210 mmHg
     xlow = 565;  // soit 80 mmHg
-    yhigh = 150; // soit 15°
+    yhigh = 300; // soit 30°
     ylow = 0;    // soit 0°
     Serial.println(" Courbe a");
   }
   if (valPot2 > 110 && valPot2 < 150) { // Résistance de 4K7 donne 130 
     xhigh = 330; // soit 210 mmHg
     xlow = 538;  // soit 95 mmHg
-    yhigh = 140; // soit 14°
+    yhigh = 280; // soit 28°
     ylow = 0;    // soit 0°
     Serial.println(" Courbe b");
   }
   if (valPot2 > 320 && valPot2 < 360) {  // Résistance de 18K donne 340    
     xhigh = 350; // soit 200 mmHg
     xlow = 601;  // soit 60 mmHg
-    yhigh = 160; // soit 16°
+    yhigh = 320; // soit 32°
     ylow = 0;    // soit 0°
     Serial.println(" Courbe c");
   }
   if (valPot2 > 545 && valPot2 < 585) {  // Résistance de 47K donne 565    
     xhigh = 350; // soit 200 mmHg
     xlow = 538;  // soit 95 mmHg
-    yhigh = 160; // soit 16°
+    yhigh = 320; // soit 32°
     ylow = 0;    // soit 0°
     Serial.println(" Courbe d");
   }
   if (valPot2 > 715 && valPot2 < 755) {  // Résistance de 100K donne 735    
     xhigh = 330; // soit 210 mmHg
     xlow = 601;  // soit 60 mmHg
-    yhigh = 140; // soit 14°
+    yhigh = 280; // soit 28°
     ylow = 0;    // soit 0°
     Serial.println(" Courbe e");
   }
   if (valPot2 > 995) {                  // Pas de shunt donne 1015 
     xhigh = 330; // soit 210 mmHg
     xlow = 565;  // soit 80 mmHg
-    yhigh = 150; // soit 15°
+    yhigh = 300; // soit 30°
     ylow = 0;    // soit 0°
     Serial.println(" Courbe a");
   }

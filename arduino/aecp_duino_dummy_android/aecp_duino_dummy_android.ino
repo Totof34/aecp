@@ -319,7 +319,7 @@ void setup()//////////////////while (1); delay(1000);//////////////////////////
 
 
 void demoBTsmartphone(){
-  for(int i = 1; i < 160; i++){
+  for(int i = 1; i < 154; i++){
     Vitesse = arrayVitesse[i];
     T = NT/(Vitesse) ;
     uspardegre = (T/float(AngleCibles));
@@ -340,14 +340,14 @@ void demoBTsmartphone(){
      
     delay(200);
   }
-  for(int i = 160; i > 0; i--){
+  for(int i = 154; i > 0; i--){
     Vitesse = arrayVitesse[i];
     T = NT/(Vitesse) ;
     uspardegre = (T/float(AngleCibles));
     CalcD();
     //Degdep = arrayDep[i];
     Dep = analogRead(A0);
-    Degdep = map(Dep,330,565,150,0);  //Mesure la dépression
+    Degdep = map(Dep,330,565,300,0);  //Mesure la dépression
     Degdep = Degdep/10;
     //int Degdepcal = analogRead(A0); Pour calibrage du capteur MV3P5050
     if (Degdep < 0){ Degdep = 0; }

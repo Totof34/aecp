@@ -296,45 +296,45 @@ void  Select_Courbe()////////////while (1); delay(1000);////////////////////////
 void  Select_Courbe_depression()////////////while (1); delay(1000);/////////////////////////////
 { valPot2 = analogRead(Pot2);
   Serial.print("Le selecteur 2 = "); Serial.print(valPot2); Serial.print(" ,Depression = ");
-  if (valPot2 < 99) {                  // Shunt 0 ohm donne 15
+  if (valPot2 < 99) {                  // Shunt 0 ohm donne 15 
     xhigh = 330; // soit 210 mmHg
     xlow = 565;  // soit 80 mmHg
-    yhigh = 150; // soit 15°
+    yhigh = 300; // soit 30°
     ylow = 0;    // soit 0°
     Serial.println(" Courbe a");
   }
-  if (valPot2 > 110 && valPot2 < 150) { // Résistance de 4K7 donne 130
+  if (valPot2 > 110 && valPot2 < 150) { // Résistance de 4K7 donne 130 
     xhigh = 330; // soit 210 mmHg
     xlow = 538;  // soit 95 mmHg
-    yhigh = 140; // soit 14°
+    yhigh = 280; // soit 28°
     ylow = 0;    // soit 0°
     Serial.println(" Courbe b");
   }
-  if (valPot2 > 320 && valPot2 < 360) {  // Résistance de 18K donne 340
+  if (valPot2 > 320 && valPot2 < 360) {  // Résistance de 18K donne 340    
     xhigh = 350; // soit 200 mmHg
     xlow = 601;  // soit 60 mmHg
-    yhigh = 160; // soit 16°
+    yhigh = 320; // soit 32°
     ylow = 0;    // soit 0°
     Serial.println(" Courbe c");
   }
-  if (valPot2 > 545 && valPot2 < 585) {  // Résistance de 47K donne 565
+  if (valPot2 > 545 && valPot2 < 585) {  // Résistance de 47K donne 565    
     xhigh = 350; // soit 200 mmHg
     xlow = 538;  // soit 95 mmHg
-    yhigh = 160; // soit 16°
+    yhigh = 320; // soit 32°
     ylow = 0;    // soit 0°
     Serial.println(" Courbe d");
   }
-  if (valPot2 > 715 && valPot2 < 755) {  // Résistance de 100K donne 735
+  if (valPot2 > 715 && valPot2 < 755) {  // Résistance de 100K donne 735    
     xhigh = 330; // soit 210 mmHg
     xlow = 601;  // soit 60 mmHg
-    yhigh = 140; // soit 14°
+    yhigh = 280; // soit 28°
     ylow = 0;    // soit 0°
     Serial.println(" Courbe e");
   }
-  if (valPot2 > 995) {                  // Pas de shunt donne 1015
+  if (valPot2 > 995) {                  // Pas de shunt donne 1015 
     xhigh = 330; // soit 210 mmHg
     xlow = 565;  // soit 80 mmHg
-    yhigh = 150; // soit 15°
+    yhigh = 300; // soit 30°
     ylow = 0;    // soit 0°
     Serial.println(" Courbe a");
   }
@@ -376,7 +376,7 @@ void loop()   /////////////////////while (1); delay(1000);/////////////////
   while (digitalRead(Cible) == !CaptOn); //Attendre front actif de la cible
   T = micros() - prec_H;    //front actif, arrivé calculer T
   prec_H = micros(); //heure du front actuel qui deviendra le front precedent
-  //digitalWrite(Led,LOW); // Décommenter cette ligne pour caller le capteur , voir plus loin la 2ème ligne 409
+  digitalWrite(Led,LOW); // Décommenter cette ligne pour caller le capteur , voir plus loin la 2ème ligne 409
   Dep = analogRead(A0);
   Degdep = map(Dep, xhigh, xlow, yhigh, ylow); //Mesure la dépression
   Degdep = Degdep / 10;
@@ -411,7 +411,7 @@ void loop()   /////////////////////while (1); delay(1000);/////////////////
 
   Tempsecoule = Stop_temps - prec_H ;
   Tant = T; // Sauve la valeur de T en cas de perte d'info du capteur
-  //digitalWrite(Led,HIGH);
+  digitalWrite(Led,HIGH);
 
   senddata();
 

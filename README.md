@@ -30,6 +30,10 @@ https://github.com/michelm63/AEMM
 with a dedicated post here
 http://motos-anglaises.com/phpBB3/viewtopic.php?f=3&t=28953
 
+All the things we need is on this picture for the hardware
+and a car of course
+![](images/synoptique.jpg)
+
 The prototype of the new board under construction and under kicad
 
 ![](images/aecp_nano_V2_6.JPG)
