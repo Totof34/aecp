@@ -1,0 +1,19 @@
+/tmp/android4455822164240554521sketch/bin/classes.dex : \
+/tmp/android4455822164240554521sketch/bin/classes/processing/test/aecp_android_2/R$attr.class \
+/tmp/android4455822164240554521sketch/bin/classes/processing/test/aecp_android_2/R$id.class \
+/tmp/android4455822164240554521sketch/bin/classes/processing/test/aecp_android_2/aecp_android_2$SendReceiveBytes.class \
+/tmp/android4455822164240554521sketch/bin/classes/processing/test/aecp_android_2/MainActivity.class \
+/tmp/android4455822164240554521sketch/bin/classes/processing/test/aecp_android_2/aecp_android_2$MyCanvas.class \
+/tmp/android4455822164240554521sketch/bin/classes/processing/test/aecp_android_2/R$drawable.class \
+/tmp/android4455822164240554521sketch/bin/classes/processing/test/aecp_android_2/R.class \
+/tmp/android4455822164240554521sketch/bin/classes/processing/test/aecp_android_2/BuildConfig.class \
+/tmp/android4455822164240554521sketch/bin/classes/processing/test/aecp_android_2/aecp_android_2$myOwnBroadcastReceiver.class \
+/tmp/android4455822164240554521sketch/bin/classes/processing/test/aecp_android_2/aecp_android_2$1.class \
+/tmp/android4455822164240554521sketch/bin/classes/processing/test/aecp_android_2/R$layout.class \
+/tmp/android4455822164240554521sketch/bin/classes/processing/test/aecp_android_2/aecp_android_2.class \
+/tmp/android4455822164240554521sketch/bin/classes/processing/test/aecp_android_2/aecp_android_2$MyLocationListener.class \
+/tmp/android4455822164240554521sketch/bin/classes/processing/test/aecp_android_2/aecp_android_2$ConnectToBluetooth.class \
+/tmp/android4455822164240554521sketch/bin/classes/processing/test/aecp_android_2/aecp_android_2$MyCanvasTOT.class \
+/tmp/android4455822164240554521sketch/bin/dexedLibs/android-support-v4-dc3a6e6cb48b72b95e7f339033da86e4.jar \
+/tmp/android4455822164240554521sketch/bin/dexedLibs/processing-core-6cb5007823285fd9d748e35571a10945.jar \
+/tmp/android4455822164240554521sketch/bin/dexedLibs/controlP5-2c62f22f32b055f6f5abbabc925e77eb.jar \

@@ -59,7 +59,7 @@ int[][] mydepressiony = new int[12][1];
 int myspeedRaw;
 float[] myspeed = new float[176];
 float mydepressionRaw;
-float[] mydepression = new float[500];
+float[] mydepression = new float[1024];
 
 int q;
 int xcentOrigin = 390;
@@ -268,7 +268,7 @@ void serialEvent(Serial p) {
  textfield3.setText(str(delayValue));
  textfield5.setText(str(pressionValue));
  if (stateCent == false ){
-   textfield6.setText(sdelaySpark);
+   textfield6.setText(str(advanceStatic));
  }
  else {
    textfield6.setText(str(advanceStatic));
@@ -346,11 +346,17 @@ public void drawmycentrifugalcurve(){
     int xr = q*2;
     float yr = myspeed [q];    
     if (stateCent == false ){
+      if (yr == 0 ) {
+      } else {  
     line(xcentOrigin+lastxr,ycentOrigin-160-lastyr,xcentOrigin+xr,ycentOrigin-160-yr); 
+      }
     }
     else {
     fill(0);
+    if (yr == 0 ) {
+      } else {  
     line(xcentOrigin+lastxr,ycentOrigin-lastyr,xcentOrigin+xr,ycentOrigin-yr);
+      }
     }
   }
 }
@@ -366,23 +372,29 @@ public void storedepression(){
 }
 
 public void drawmydepressioncurve(){
+      int   lastxdep = 0;
+      float lastydep = 0;
+  
   for (int g = 1; g<300; g++){
     int xdep = g;
-    int lastxdep = g-1;
     int xdepc = xdepOrigin + g; // Origine du tableau en  = 960
-    int lastxdepc = xdepOrigin + (g-1); // Origine du tableau en  = 960
+    int lastxdepc = xdepOrigin + lastxdep; // Origine du tableau en  = 960
     float ydep = mydepression [g];
-    float lastydep = mydepression [g-1];
     float ydepc = ydepOrigin - (ydep*10);
     float lastydepc = ydepOrigin - (lastydep*10);
+    if ( xdep < lastxdep ) {
+        lastxdep = 0;
+        lastydep = 0;
+      }
+    if (ydep == 0 ) {
+      } else {  
     //println(myspeed [q]);
     fill(0);
     line(lastxdepc,lastydepc,xdepc,ydepc);
-    //line(xavc-1,yavc-1,xavc,yavc);
-    //print(xavc);print(",");
-    //println(yavc);
-    //line(480,680,750,525);
+    lastxdep = xdep;
+    lastydep = ydep;
   }
+ }
 }
 
 public void selectcentrifugalcurve(){
@@ -410,10 +422,11 @@ public void selectcentrifugalcurve(){
      break;
    case 2: 
      advanceStatic = 17.0;
-     nameCurve = "a132.txt";
+     nameCurve = "n2.txt";
      advanceCurve = loadStrings(nameCurve); 
-     titleCurve = "    Allumeur A132-SEV"; 
-     titleCurve2 = "    (M10S - N1 1965)";
+     titleCurve = "Allumeur N2 - 2156D  "; 
+     titleCurve2 = "      (M5 - PL17)   ";
+     dwellandcodetime2 = 0;
      stateCent = true;
      break;
    case 3: 
@@ -422,6 +435,7 @@ public void selectcentrifugalcurve(){
      advanceCurve = loadStrings(nameCurve); 
      titleCurve = "  Allumeur 525292 - SCD"; 
      titleCurve2 = "                   ";
+     dwellandcodetime2 = 0;
      stateCent = true;
      break;  
    }
@@ -702,10 +716,10 @@ public void openhelpwindow(){
 }
  
 public void recordwindow(){ 
-   window2 = new GWindow(this, "Aide à la sélection pour paramétrer sa courbe", 0, 0, 1350, 690, false, JAVA2D);
+  window2 = new GWindow(this, "Aide à la sélection pour paramétrer sa courbe", 0, 0, 1350, 690, false, JAVA2D);
   window2.setActionOnClose(G4P.CLOSE_WINDOW);
   window2.addDrawHandler(this, "win_draw1");
-  textfieldrpmmin = new GTextField(window2.papplet, 1020, 50, 110, 20, G4P.SCROLLBARS_NONE);
+  textfieldrpmmin = new GTextField(window2.papplet, 1030, 50, 100, 20, G4P.SCROLLBARS_NONE);
   textfieldrpmmin.setText(" ");
   textfieldrpmmin.setOpaque(true);
   textfieldrpmmin.addEventHandler(this, "textfieldrpmmin_change1");
@@ -717,7 +731,7 @@ public void recordwindow(){
   label44.setText("RPM max");
   label44.setTextBold();
   label44.setOpaque(false);
-  textfieldrpmmax = new GTextField(window2.papplet, 1020, 80, 110, 20, G4P.SCROLLBARS_NONE);
+  textfieldrpmmax = new GTextField(window2.papplet, 1030, 80, 100, 20, G4P.SCROLLBARS_NONE);
   textfieldrpmmax.setText(" ");
   textfieldrpmmax.setOpaque(true);
   textfieldrpmmax.addEventHandler(this, "textfieldrpmmax_change1");
@@ -797,14 +811,10 @@ public void recordwindow(){
   label54.setText("ms");
   label54.setTextBold();
   label54.setOpaque(false);
-  buttonsave = new GButton(window2.papplet, 1170, 50, 100, 20);
+  buttonsave = new GButton(window2.papplet, 1160, 80, 110, 20);
   buttonsave.setText("Sauvegarder");
   buttonsave.setTextBold();
   buttonsave.addEventHandler(this, "buttonsave_click1");
-  buttonload = new GButton(window2.papplet, 1170, 80, 100, 20);
-  buttonload.setText("Historique");
-  buttonload.setTextBold();
-  buttonload.addEventHandler(this, "buttonload_click1");
   label55 = new GLabel(window2.papplet, 920, 110, 100, 20);
   label55.setText("Date & heure");
   label55.setTextBold();
@@ -827,7 +837,7 @@ public void recordwindow(){
   tfs = new GTextField(window2.papplet, 1240, 110, 30, 20, G4P.SCROLLBARS_NONE);
   tfs.setOpaque(true);
   tfs.addEventHandler(this, "tfs_change1");
-  buttonpause = new GButton(window2.papplet, 1170, 20, 100, 20);
+  buttonpause = new GButton(window2.papplet, 1160, 50, 110, 20);
   buttonpause.setText("Pause");
   buttonpause.setTextBold();
   buttonpause.addEventHandler(this, "buttonpause_click1");

@@ -562,15 +562,6 @@ public void buttonsave_click1(GButton source, GEvent event) { //_CODE_:buttonsav
   
 } //_CODE_:buttonsave:432069:
 
-public void buttonload_click1(GButton source, GEvent event) { //_CODE_:buttonload:645158:
-  //println("buttonload - GButton >> GEvent." + event + " @ " + millis());
-  window2.close();
-  handleFileDialog();
-  //aef.loadMesure0();
-  recordwindow();
-        
-} //_CODE_:buttonload:645158:
-
 public void tfd_change1(GTextField source, GEvent event) { //_CODE_:tfd:480943:
   //println("tfd - GTextField >> GEvent." + event + " @ " + millis());
 } //_CODE_:tfd:480943:
@@ -1138,7 +1129,6 @@ GLabel label53;
 GLabel label52; 
 GLabel label54; 
 GButton buttonsave; 
-GButton buttonload; 
 GLabel label55; 
 GTextField tfd; 
 GTextField tfm; 
