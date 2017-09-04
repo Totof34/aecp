@@ -1,5 +1,6 @@
 /*Interface pour allumage électronique cartographique pour Panhard
- créez sous Processing 3.3 pour smartphone sous Android 4.4.2
+ créez sous Processing 3.3 pour smartphone Haier L56 sous Android 5.1
+ Finalisée le 21/08/2017 
  Adaptation du code issu du commentaire ci-dessous */
 /* ConnectBluetooth: Written by ScottC on 18 March 2013 using 
  Processing version 2.0b8
@@ -72,10 +73,12 @@ float advCurrentAverage = 0;
 
 int myColorBackground = color(150, 150, 150);
 int knobValue = 100;
-int radiusknobA = 135;
-int radiusknobB = 90;
-int radiusknobC = 90;
-int radiusknobD = 115;
+int radiusknobA = 180;
+int radiusknobB = 120;
+int radiusknobC = 120;
+int radiusknobD = 150;
+int marginEdge = 50;
+int marginBottom = 100;
 
 Knob myKnobRPM;
 Knob myKnobDEP;
@@ -133,21 +136,23 @@ float avtotValue; // Une variable pour stocker la valeur du délai d'un degré
 int adcValue; // Une variable pour stocker la valeur de la mesure du capteur de dépression
 int mmhgValue; // Conversion de la valeur numérique en mm de mercure
 int staticValue = 0; // Une variable pour stocker la valeur de l'avance statique en degré
-int coefSpeed = 20; // Un coefficient multiplicateur pour afficher les résulats
-int coefCent = 10; // Un coefficient multiplicateur pour afficher les résulats 
-int coefDep = 5; // Un coefficient multiplicateur pour afficher les résulats
+float coefSpeed = (20 / 1.5 ); // Un coefficient multiplicateur pour afficher les résulats
+int coefCent = 15; // Un coefficient multiplicateur pour afficher les résulats 
+float coefDep = 7.5; // Un coefficient multiplicateur pour afficher les résulats
+int coefCentTot = 10; // Un coefficient multiplicateur pour afficher les résulats 
+float coefDepTot = 10; // Un coefficient multiplicateur pour afficher les résulats
 int coefTot = 10; // Un coefficient multiplicateur pour afficher les résulats
-float coefAffTot = 0.68; // Pour corriger l'affichage de l'avance totale sur la hauteur de l'écran 65° tout de même !!! 
-int rangeSpeed = 350; // Une variable pour le dimensionement et la position de l'affichage, ici vitesse maxi/coefSpeed = 7000/20
-int rangeCent = 200; // Une variable pour le dimensionement et la position de l'affichage, ici avance centrifuge maxi*coefCent = 20*10
-int rangeDep = 200; // Une variable pour le dimensionement et la position de l'affichage, ici avance dépression maxi*coefDep = 20*10
-int rangeMmhg = 300; // Une variable pour le dimensionement et la position de l'affichage, ici mm de mercure maxi = 300
-int rangeTot = 442; // Une variable pour le dimensionement et la position de l'affichage, ici avance dépression maxi*coefTot = 50*10
-int rangeTime = 400; //Une variable pour le dimensionement et la position de l'affichage, ici temps passé par rapport à la largeur d'écran
+float coefTotaff = 1.3; // Un coefficient multiplicateur pour afficher les résulats sur le graphique
+int rangeSpeed = 525; // Une variable pour le dimensionement et la position de l'affichage, ici vitesse maxi/coefSpeed = (7000/20)*1.5
+int rangeCent = 300; // Une variable pour le dimensionement et la position de l'affichage, ici avance centrifuge maxi*coefCent = (20*10)*1.5
+int rangeDep = 300; // Une variable pour le dimensionement et la position de l'affichage, ici avance dépression maxi*coefDep = (20*10)*1.5
+int rangeMmhg = 450; // Une variable pour le dimensionement et la position de l'affichage, ici mm de mercure maxi = 300*1.5
+int rangeTot = 845; // Une variable pour le dimensionement et la position de l'affichage, ici avance dépression maxi*coefTot = 65*10
+int rangeTime = 650; //Une variable pour le dimensionement et la position de l'affichage, ici temps passé par rapport à la largeur d'écran
 
 float[] myspeed = new float[700]; // Tableau pour sauvegarder les données envoyées par la Nano V3.0
 float[] mymmhg = new float[1000]; // Tableau pour sauvegarder les données envoyées par la Nano V3.0
-float[][] myadvancetot = new float[700][4]; // Tableau pour sauvegarder les données envoyées par la Nano V3.0
+float[][] myadvancetot = new float[1000][4]; // Tableau pour sauvegarder les données envoyées par la Nano V3.0
 int countertot = 0; // Compteur pour stoquer les avances pour en faire un graphique
 
 color blaC = color(0, 0, 0); // noir
@@ -203,9 +208,9 @@ BluetoothAdapter bluetooth = BluetoothAdapter.getDefaultAdapter();
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
   if (requestCode==0) {
     if (resultCode == getActivity().RESULT_OK) {
-      ToastMaster("Bluetooth has been switched ON");
+      ToastMaster("Le Bluetooth doit être activé");
     } else {
-      ToastMaster("You need to turn Bluetooth ON !!!");
+      ToastMaster("Vous devez activez le Bluetooth !!!");
     }
   }
 }
@@ -344,7 +349,7 @@ void setup() {
     .setPosition(((width/2)-radiusknobA), 90)
     .setRadius(radiusknobA)
     .setNumberOfTickMarks(7)
-    .setTickMarkLength(6)
+    .setTickMarkLength(10)
     .setTickMarkWeight(5.0)
     .setColorForeground(color(255))
     .setColorActive(color(255, 0, 0))
@@ -358,10 +363,10 @@ void setup() {
     .setRange(0, 40)
     .setValue(0)
     .setLabelVisible(false)
-    .setPosition(25, 350)
+    .setPosition(marginEdge, (height/2-(radiusknobB)))
     .setRadius(radiusknobB)
     .setNumberOfTickMarks(9)
-    .setTickMarkLength(5)
+    .setTickMarkLength(10)
     .setTickMarkWeight(3.0)
     .snapToTickMarks(false)
     .setColorForeground(color(255))
@@ -376,10 +381,10 @@ void setup() {
     .setRange(0, 20)
     .setValue(0)
     .setLabelVisible(false)
-    .setPosition((width/2)+25, 350)
+    .setPosition((width-(2*radiusknobC)-marginEdge), (height/2-(radiusknobC)))
     .setRadius(radiusknobC)
     .setNumberOfTickMarks(9)
-    .setTickMarkLength(5)
+    .setTickMarkLength(10)
     .setTickMarkWeight(3.0)
     .snapToTickMarks(false)
     .setColorForeground(color(255))
@@ -391,10 +396,10 @@ void setup() {
     .setRange(15, 65)
     .setValue(0)
     .setLabelVisible(false)
-    .setPosition(((width/2)-radiusknobD), 525)
+    .setPosition(((width/2)-radiusknobD), (height - 3 * radiusknobD) )
     .setRadius(radiusknobD)
     .setNumberOfTickMarks(24)
-    .setTickMarkLength(5)
+    .setTickMarkLength(10)
     .setTickMarkWeight(3.0)
     .snapToTickMarks(false)
     .setColorForeground(color(255))
@@ -404,125 +409,125 @@ void setup() {
 
   myTextlabelTitle = cp5.addTextlabel("aecp pour smartphone")
     .setText("aecp pour smartphone")
-    .setPosition(70, 5)
+    .setPosition(((width /2)-170), 5)
     .setColorValue(textwhite)
     .setFont(myFont)
     ;   
 
   myTextlabel1rpm     = cp5.addTextlabel("1rpm")
     .setText("1")
-    .setPosition(65, 220)
+    .setPosition(((width/2)-radiusknobA - 50), (radiusknobA + 100))
     .setColorValue(textblack)
     .setFont(myFont2)
     ;
 
   myTextlabel2rpm     = cp5.addTextlabel("2rpm")
     .setText("2")
-    .setPosition(80, 120)
+    .setPosition(((width/2)- radiusknobA - 30), (radiusknobA - 50))
     .setColorValue(textblack)
     .setFont(myFont2)
     ;
 
   myTextlabel3rpm     = cp5.addTextlabel("3rpm")
     .setText("3")
-    .setPosition(160, 55)
+    .setPosition(((width/2)- radiusknobA + 90), (radiusknobA - 130))
     .setColorValue(textblack)
     .setFont(myFont2)
     ;  
 
   myTextlabel4rpm     = cp5.addTextlabel("4rpm")
     .setText("4")
-    .setPosition(280, 55)
+    .setPosition(((width/2)+ radiusknobA - 120), (radiusknobA - 130))
     .setColorValue(textblack)
     .setFont(myFont2)
     ;                   
 
   myTextlabel5rpm     = cp5.addTextlabel("5rpm")
     .setText("5")
-    .setPosition(370, 120)
+    .setPosition(((width/2)+ radiusknobA - 10), (radiusknobA - 50))
     .setColorValue(textblack)
     .setFont(myFont2)
     ;              
   myTextlabel6rpm     = cp5.addTextlabel("6rpm")
     .setText("6")
-    .setPosition(390, 220)
+    .setPosition(((width/2)+ radiusknobA + 30), (radiusknobA + 100))
     .setColorValue(reC)
     .setFont(myFont2)
     ;               
 
   myTextlabel6rpm     = cp5.addTextlabel("7rpm")
     .setText("7")
-    .setPosition(350, 310)
+    .setPosition(((width/2)+ radiusknobA - 40), (radiusknobA + 230))
     .setColorValue(reC)
     .setFont(myFont2)
     ; 
 
   myTextlabelSPEED = cp5.addTextlabel("SPEED")
     .setText("0.00")
-    .setPosition(225, 170)
+    .setPosition(((width/2) - 50), (radiusknobA + 10))
     .setColorValue(textwhite)
     .setFont(myFont)
     ; 
 
   myTextlabelSPEEDunit = cp5.addTextlabel("Km/h")
     .setText("Km/h")
-    .setPosition(190, 210)
+    .setPosition(((width/2) - 50), (radiusknobA + 60))
     .setColorValue(textwhite)
     .setFont(myFont)
     ;                    
 
   myTextlabelRPM = cp5.addTextlabel("RPM")
     .setText("0")
-    .setPosition(195, 260)
+    .setPosition(((width/2) - 50), (radiusknobA + 110))
     .setColorValue(0xffffff00)
     .setFont(myFont)
     ;                
 
   myTextlabelRPMunit = cp5.addTextlabel("T min")
     .setText("T/min")
-    .setPosition(190, 300)
+    .setPosition(((width/2) - 50), (radiusknobA + 150))
     .setColorValue(0xffffff00)
     .setFont(myFont)
     ;
 
   myTextlabelDEP = cp5.addTextlabel("DEP")
     .setText("0")
-    .setPosition(90, 445)
+    .setPosition((marginEdge + radiusknobB - 50), ((height/2)+ 20))
     .setColorValue(0xffffff00)
     .setFont(myFont)
     ;                   
 
   myTextlabelDEPunit = cp5.addTextlabel("° DEP")
     .setText("° Dep")
-    .setPosition(65, 485)
+    .setPosition((marginEdge + radiusknobB - 50), ((height/2)+ 60))
     .setColorValue(0xffffff00)
     .setFont(myFont)
     ;               
 
   myTextlabelCENT = cp5.addTextlabel("CENT")
     .setText("0")
-    .setPosition(325, 445)
+    .setPosition((width- radiusknobC - marginEdge) - 50, ((height/2)+ 20))
     .setColorValue(0xffffff00)
     .setFont(myFont)
     ;                   
 
   myTextlabelCENTunit = cp5.addTextlabel("° CENT")
     .setText("° Cent")
-    .setPosition(300, 485)
+    .setPosition((width- radiusknobC - marginEdge) - 50, ((height/2)+ 60))
     .setColorValue(0xffffff00)
     .setFont(myFont)
     ; 
 
   myTextlabelTOT = cp5.addTextlabel("AV TOT")
     .setText("0")
-    .setPosition(205, 668)
+    .setPosition(((width/2)-40), ((height - 2 * radiusknobD)-70))
     .setColorValue(0xffffff00)
     .setFont(myFont)
     ;                     
 
   myTextlabelTOTunit = cp5.addTextlabel("° AV TOT")
     .setText("° Av Tot")
-    .setPosition(170, 708)
+    .setPosition(((width/2)-60), ((height - 2 * radiusknobD)-20))
     .setColorValue(0xffffff00)
     .setFont(myFont)
     ; 
@@ -530,14 +535,14 @@ void setup() {
   myTextlabelDIST = cp5.addTextlabel("DIST")
     .setText("0000.0")
     .setDecimalPrecision(2)
-    .setPosition(185, 598)
+    .setPosition(((width/2)-50), ((height - 2 * radiusknobD)+20))
     .setColorValue(textwhite)
     .setFont(myFont)
     ; 
 
   myTextlabelDISTunit = cp5.addTextlabel("KM")
     .setText("Km")
-    .setPosition(210, 632)
+    .setPosition(((width/2)-30), ((height - 2 * radiusknobD)+60))
     .setColorValue(textwhite)
     .setFont(myFont)
     ; 
@@ -545,7 +550,7 @@ void setup() {
   myButtonRAZ = cp5.addButton("RAZ")
     .setValue(0)
     .setFont(myFont)
-    .setPosition(370, 690)
+    .setPosition((width - marginEdge - 90), (height - marginBottom))
     .setSize(90, 60)
     .setColorBackground(color(0, 80, 100))
     ; 
@@ -553,7 +558,7 @@ void setup() {
   myBtGraph = cp5.addButton("VUE")
     .setValue(0)
     .setFont(myFont)
-    .setPosition(10, 690)
+    .setPosition(marginEdge, (height - marginBottom))
     .setSize(90, 60)
     .setColorBackground(color(0, 80, 100))
     ; 
@@ -607,7 +612,7 @@ void draw() {
         c1.enableShortcuts();
         c1.setBackground( color( 250, 220, 150 ) );
         c1.addButton("aecp pour smartphone").setSize(width, 40).setPosition( 0, 0 ).setFont(myFont).setColorBackground(color(0));
-        c1.addButton("Sortir").setSize(140, 40).setPosition( ((width/2)-70), (height-50) ).setFont(myFont).setId(1);
+        c1.addButton("Sortir").setSize(140, 60).setPosition( ((width/2)-70), (height-100) ).setFont(myFont).setId(1);
         cc = new MyCanvas();
         cc.pre(); // use cc.post(); to draw on top of existing controllers.
         c1.addCanvas(cc); // add the canvas to cp5
@@ -623,10 +628,10 @@ void draw() {
         c2.enableShortcuts();
         c2.setBackground( color( 250, 220, 150 ) );
         c2.addButton("aecp pour smartphone").setSize(width, 40).setPosition( 0, 0 ).setFont(myFont).setColorBackground(color(0));
-        c2.addButton("Cent").setSize(100, 40).setPosition( ((width/2)-200), 50 ).setFont(myFont).setId(3);
-        c2.addButton("Dep").setSize(100, 40).setPosition( ((width/2)-50), 50 ).setFont(myFont).setId(4);
-        c2.addButton("Tot").setSize(100, 40).setPosition( ((width/2)+100), 50 ).setFont(myFont).setId(5);
-        c2.addButton("Sortir").setSize(140, 40).setPosition( ((width/2)-70), (height-50) ).setFont(myFont).setId(2);
+        c2.addButton("Cent").setSize(100, 60).setPosition( ((width/2)-200), 80 ).setFont(myFont).setId(3);
+        c2.addButton("Dep").setSize(100, 60).setPosition( ((width/2)-50), 80 ).setFont(myFont).setId(4);
+        c2.addButton("Tot").setSize(100, 60).setPosition( ((width/2)+100), 80 ).setFont(myFont).setId(5);
+        c2.addButton("Sortir").setSize(140, 60).setPosition( ((width/2)-70), (height-100) ).setFont(myFont).setId(2);
         cc2 = new MyCanvasTOT();
         cc2.pre(); // use cc.post(); to draw on top of existing controllers.
         c2.addCanvas(cc2); // add the canvas to cp5
@@ -652,9 +657,9 @@ class MyCanvas extends Canvas {
 
   public void setup(PGraphics pg) {
     xcentOrigin = (( width/2 ) - ( rangeSpeed/2 )); // Position du graphique de l'avance centrifuge
-    ycentOrigin = height-100;
+    ycentOrigin = height-200;
     xdepOrigin = (( width/2 ) - ( rangeMmhg/2 )); // Position du graphique de l'avance dépression
-    ydepOrigin = ((height/2)-100);
+    ydepOrigin = ((height/2)-200);
 
     mylastx = ( xcentOrigin + rangeSpeed +1 ); // +1 pour finir de tracer le cadrillage
     mylasty = ( ycentOrigin - rangeCent -1 ); // -1 pour finir de tracer le cadrillage
@@ -668,64 +673,64 @@ class MyCanvas extends Canvas {
     pg.strokeWeight(0);  // Epaisseur du trait
 
     // Trace le cadrillage de l'avance centrifuge
-    for (int i = xcentOrigin; i < mylastx; i = i+50) 
+    for (int i = xcentOrigin; i < mylastx; i = i+75) 
     {
       pg.line(i, mylasty, i, ycentOrigin);// ligne verticale
     }
-    for (int i = ycentOrigin; i > mylasty; i = i-50) 
+    for (int i = ycentOrigin; i > mylasty; i = i-75) 
     {
       pg.line(xcentOrigin, i, mylastx, i); // ligne horizontale
     }
 
     pg.fill(blaC);
-    pg.text("Avance centrifuge", ((width/2)-140), ((height/2)+70));
+    pg.text("Avance centrifuge", ((width/2)-140), ((height/2)+80));
 
     pg.text(0, xcentOrigin-10, ycentOrigin+30);
-    pg.text(1, xcentOrigin+40, ycentOrigin+30);
-    pg.text(2, xcentOrigin+90, ycentOrigin+30);
-    pg.text(3, xcentOrigin+140, ycentOrigin+30);
-    pg.text(4, xcentOrigin+190, ycentOrigin+30);
-    pg.text(5, xcentOrigin+240, ycentOrigin+30);
-    pg.text(6, xcentOrigin+290, ycentOrigin+30);
-    pg.text(7, xcentOrigin+340, ycentOrigin+30);
+    pg.text(1, xcentOrigin+65, ycentOrigin+30);
+    pg.text(2, xcentOrigin+140, ycentOrigin+30);
+    pg.text(3, xcentOrigin+215, ycentOrigin+30);
+    pg.text(4, xcentOrigin+290, ycentOrigin+30);
+    pg.text(5, xcentOrigin+365, ycentOrigin+30);
+    pg.text(6, xcentOrigin+440, ycentOrigin+30);
+    pg.text(7, xcentOrigin+515, ycentOrigin+30);
 
-    pg.text(5, xcentOrigin-25, ycentOrigin-50);
-    pg.text(10, xcentOrigin-40, ycentOrigin-100);
-    pg.text(15, xcentOrigin-40, ycentOrigin-150);
+    pg.text(5, xcentOrigin-25, ycentOrigin-75);
+    pg.text(10, xcentOrigin-40, ycentOrigin-150);
+    pg.text(15, xcentOrigin-40, ycentOrigin-225);
 
     pg.textFont(myFont3);
-    pg.text("x1000 t/min", xcentOrigin+270, ycentOrigin+60);
-    pg.text("d°", xcentOrigin-25, ycentOrigin-200);
+    pg.text("x1000 t/min", xcentOrigin+400, ycentOrigin+60);
+    pg.text("d°", xcentOrigin-25, ycentOrigin-300);
     pg.textFont(myFont);
 
     // Trace le cadrillage de l'avance dépression
-    for (int i = xdepOrigin; i < mylastxdep; i = i+50) 
+    for (int i = xdepOrigin; i < mylastxdep; i = i+75) 
     {
       pg.line(i, mylastydep, i, ydepOrigin);// ligne verticale
     }
-    for (int i = ydepOrigin; i > mylastydep; i = i-50) 
+    for (int i = ydepOrigin; i > mylastydep; i = i-75) 
     {
       pg.line(xdepOrigin, i, mylastxdep, i); // ligne horizontale
     }
 
     pg.fill(blaC);
-    pg.text("Avance dépression", ((width/2)-140), 70);
+    pg.text("Avance dépression", ((width/2)-140), 80);
 
-    pg.text(10, xdepOrigin-40, ydepOrigin-50);
-    pg.text(20, xdepOrigin-40, ydepOrigin-100);
-    pg.text(30, xdepOrigin-40, ydepOrigin-150);
+    pg.text(10, xdepOrigin-40, ydepOrigin-75);
+    pg.text(20, xdepOrigin-40, ydepOrigin-150);
+    pg.text(30, xdepOrigin-40, ydepOrigin-225);
 
     pg.textFont(myFont3);
     pg.text(0, xdepOrigin-10, ydepOrigin+30);
-    pg.text(50, xdepOrigin+35, ydepOrigin+30);
-    pg.text(100, xdepOrigin+80, ydepOrigin+30);
-    pg.text(150, xdepOrigin+130, ydepOrigin+30);
-    pg.text(200, xdepOrigin+180, ydepOrigin+30);
-    pg.text(250, xdepOrigin+230, ydepOrigin+30);
-    pg.text(300, xdepOrigin+280, ydepOrigin+30);
+    pg.text(50, xdepOrigin+65, ydepOrigin+30);
+    pg.text(100, xdepOrigin+140, ydepOrigin+30);
+    pg.text(150, xdepOrigin+215, ydepOrigin+30);
+    pg.text(200, xdepOrigin+290, ydepOrigin+30);
+    pg.text(250, xdepOrigin+365, ydepOrigin+30);
+    pg.text(300, xdepOrigin+440, ydepOrigin+30);
 
-    pg.text("mmhg", xdepOrigin+300, ydepOrigin+60);
-    pg.text("d°", xdepOrigin-25, ydepOrigin-200);
+    pg.text("mmhg", xdepOrigin+400, ydepOrigin+60);
+    pg.text("d°", xdepOrigin-25, ydepOrigin-300);
     pg.textFont(myFont);
 
     pg.strokeWeight(3);  // Epaisseur du trait
@@ -772,12 +777,12 @@ class MyCanvas extends Canvas {
       }
     }
 
-    pg.text("Avance Statique", ((width/2)-130), ((height/2)-30));
+    pg.text("Avance Statique", ((width/2)-130), ((height/2)-60));
     pg.fill(whiC);
-    pg.rect(((width/2)-30), (height/2)-10, 60, 40);
+    pg.rect(((width/2)-30), (height/2)-35, 60, 40);
     pg.fill(blaC);
-    pg.text(str(staticValue), ((width/2)-20), ((height/2)+20));
-    pg.text("d°", ((width/2)+40), ((height/2)+20));
+    pg.text(str(staticValue), ((width/2)-20), ((height/2)-5));
+    pg.text("d°", ((width/2)+40), ((height/2)-5));
   }
 }
 
@@ -794,8 +799,8 @@ class MyCanvasTOT extends Canvas {
   int mylastydep = 0;
 
   public void setup(PGraphics pg) {
-    xtotOrigin = (( width/2 ) - ( rangeTime/2 )); // Position du graphique de l'avance centrifuge
-    ytotOrigin = height-165;
+    xtotOrigin = ((( width/2 )+10) - ( rangeTime/2 )); // Position du graphique de l'avance centrifuge
+    ytotOrigin = height-160;
     
     mylastxtot = ( xtotOrigin + rangeTime +1 ); // +1 pour finir de tracer le cadrillage
     mylastytot = ( ytotOrigin - rangeTot -1 ); // -1 pour finir de tracer le cadrillage
@@ -812,7 +817,7 @@ class MyCanvasTOT extends Canvas {
     {
       pg.line(i, mylastytot, i, ytotOrigin);// ligne verticale
     }
-    for (int i = ytotOrigin; i > mylastytot; i = i-34) 
+    for (int i = ytotOrigin; i > mylastytot; i = i-65) 
     {
       pg.line(xtotOrigin, i, mylastxtot, i); // ligne horizontale
     }
@@ -820,47 +825,47 @@ class MyCanvasTOT extends Canvas {
     pg.fill(blaC);
     pg.text("    ", xtotOrigin+35,ytotOrigin+60);
     pg.text("    ", xtotOrigin+135,ytotOrigin+60);
-    pg.text("    ", xtotOrigin+235,ytotOrigin+60);
-    pg.text("    ", xtotOrigin+335,ytotOrigin+60);
+    pg.text("    ", mylastxtot-185,ytotOrigin+60);
+    pg.text("    ", mylastxtot-85,ytotOrigin+60);
     
     pg.text(nfc(pressionValue,1), xtotOrigin+35,ytotOrigin+60);
     pg.text(nfc(delayValue,1), xtotOrigin+135,ytotOrigin+60);
-    pg.text(nfc((avtotValue-delayValue-pressionValue),1), xtotOrigin+235,ytotOrigin+60);
+    pg.text(nfc((avtotValue-delayValue-pressionValue),1), mylastxtot-185,ytotOrigin+60);
     pg.fill(puC);
-    pg.text(nfc(avtotValue,1), xtotOrigin+335,ytotOrigin+60);
+    pg.text(nfc(avtotValue,1), mylastxtot-85,ytotOrigin+60);
     
     pg.fill(blaC);
-    pg.text("Avance totale", ((width/2)-110), ((height/2)-260));
+    pg.text("Avance totale", ((width/2)-100), ((height/2)-430));
     
-    pg.text(5, xtotOrigin-25, ytotOrigin-30);
-    pg.text(10, xtotOrigin-40, ytotOrigin-64);
-    pg.text(15, xtotOrigin-40, ytotOrigin-98);
-    pg.text(20, xtotOrigin-40, ytotOrigin-132);
-    pg.text(25, xtotOrigin-40, ytotOrigin-166);
-    pg.text(30, xtotOrigin-40, ytotOrigin-200);
-    pg.text(35, xtotOrigin-40, ytotOrigin-234);
-    pg.text(40, xtotOrigin-40, ytotOrigin-268);
-    pg.text(45, xtotOrigin-40, ytotOrigin-302);
-    pg.text(50, xtotOrigin-40, ytotOrigin-336);
-    pg.text(55, xtotOrigin-40, ytotOrigin-370);
-    pg.text(60, xtotOrigin-40, ytotOrigin-404);
+    pg.text(5, xtotOrigin-25, ytotOrigin-60);
+    pg.text(10, xtotOrigin-40, ytotOrigin-125);
+    pg.text(15, xtotOrigin-40, ytotOrigin-190);
+    pg.text(20, xtotOrigin-40, ytotOrigin-255);
+    pg.text(25, xtotOrigin-40, ytotOrigin-320);
+    pg.text(30, xtotOrigin-40, ytotOrigin-385);
+    pg.text(35, xtotOrigin-40, ytotOrigin-450);
+    pg.text(40, xtotOrigin-40, ytotOrigin-515);
+    pg.text(45, xtotOrigin-40, ytotOrigin-580);
+    pg.text(50, xtotOrigin-40, ytotOrigin-645);
+    pg.text(55, xtotOrigin-40, ytotOrigin-710);
+    pg.text(60, xtotOrigin-40, ytotOrigin-775);
 
     pg.textFont(myFont3);
-    pg.text("d°", xtotOrigin-25, ytotOrigin-440);
+    pg.text("d°", xtotOrigin-25, ytotOrigin-840);
     pg.text("dep", xtotOrigin+55,ytotOrigin+30);
     pg.text("cent", xtotOrigin+155,ytotOrigin+30);
-    pg.text("fix", xtotOrigin+255,ytotOrigin+30);
-    pg.text("tot", xtotOrigin+355,ytotOrigin+30);
+    pg.text("fix", mylastxtot-155,ytotOrigin+30);
+    pg.text("tot", mylastxtot-55,ytotOrigin+30);
     
     pg.fill(whiC);
-    pg.rect(((width/2)-200), (height-50), 80, 35);
-    pg.rect((width-120), (height-50), 80, 35);
+    pg.rect(((width/2)-250), (height-50), 80, 35);
+    pg.rect((width-170), (height-50), 80, 35);
     pg.fill(blaC);
-    pg.text("Av moyenne", ((width/2)-230),(height-60) );
-    pg.text("Av crête", (width-130),(height-60) );
+    pg.text("Av moyenne", ((width/2)-280),(height-60) );
+    pg.text("Av crête", (width-180),(height-60) );
     pg.textFont(myFont2);
-    pg.text(nfc(advCurrentAverage,1), ((width/2)-195),(height-20) );
-    pg.text(nfc(advPeakmesure,1), (width-115),(height-20) );
+    pg.text(nfc(advCurrentAverage,1), ((width/2)-245),(height-20) );
+    pg.text(nfc(advPeakmesure,1), (width-165),(height-20) );
     
     pg.textFont(myFont);
 
@@ -919,7 +924,7 @@ class MyCanvasTOT extends Canvas {
        pg.stroke(puC);
        pg.line((xtotOrigin+lastxrdep),(ytotOrigin-lastyrdep),(xtotOrigin+xrdep),(ytotOrigin-yrdep));
        pg.fill(puC);
-       pg.rect(xtotOrigin+325,ytotOrigin+10,20,20,3);
+       pg.rect(mylastxtot-85,ytotOrigin+10,20,20,3);
       }
       }
       
@@ -951,7 +956,7 @@ class MyCanvasTOT extends Canvas {
        pg.line((xtotOrigin+lastxrfix),(ytotOrigin-lastyrfix+3),(xtotOrigin+xrfix),(ytotOrigin-yrfix+3));
        pg.strokeWeight(1);  // Epaisseur du trait
        pg.fill(blC);
-       pg.rect(xtotOrigin+225,ytotOrigin+10,20,20,3);
+       pg.rect(mylastxtot-185,ytotOrigin+10,20,20,3);
       }
       
     }
@@ -961,16 +966,16 @@ class MyCanvasTOT extends Canvas {
 
 
 public void storeavance() {
-  int s = speedValue/coefSpeed;
+  int s = int(speedValue/coefSpeed);
   float av = 0;
-  av = delayValue*coefCent;  
+  av = delayValue*(coefCent);  
   //print(s);print(",");
   //println(av);
   myspeed [s] = av;
   //println(myspeed [s]);
 }
 public void storedep() {
-  int d = mmhgValue;
+  int d = int(mmhgValue * 1.5);
   float dep = 0;
   dep = pressionValue*coefDep;  
   //print(d);print(",");
@@ -985,15 +990,19 @@ public void storetot(){
    float dep = 0;
    float fix = 0;
    
-   tot = int(avtotValue*coefTot*coefAffTot);
-   av = int(delayValue*coefCent*coefAffTot);  
-   dep = int(pressionValue*coefDep*2*coefAffTot); // *2 pour harmoniser les coefCent, coefDep et coefTot
+   tot = int(avtotValue*coefTot*coefTotaff);
+   av = int(delayValue*coefCentTot*coefTotaff);  
+   dep = int(pressionValue*coefDepTot*1*coefTotaff); // *2 pour harmoniser les coefCent, coefDep et coefTot
    fix = tot - dep - av;
    
    myadvancetot [c][0] = fix;
    myadvancetot [c][1] = av;
    myadvancetot [c][2] = dep;
    myadvancetot [c][3] = tot;
+   
+   //println(delayValue + "," + pressionValue);
+   //println(dep + "," + av + "," + fix + "," + tot);
+   
    
    if ( countertot > (rangeTime) ){
      countertot =0;
@@ -1072,7 +1081,7 @@ public class myOwnBroadcastReceiver extends BroadcastReceiver {
 
       //Connect to the discovered bluetooth device (BTaecp)
       if (discoveredDeviceName.equals("BTaepl") || discoveredDeviceName.equals("BTaecp")) {
-        ToastMaster("Connecte BTaepl or BTaecp");
+        ToastMaster("Connecte BTaepl ou BTaecp");
         context.unregisterReceiver(myDiscoverer);
 
 
