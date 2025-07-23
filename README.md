@@ -14,14 +14,14 @@ http://www.audiyofan.org/forum/viewtopic.php?f=71&t=9221
 PCB & schema are designed with Kicad
 
 **********************************
-*A new version called V4 for 2025*
+*A new version called V4 in 2025*
 **********************************
 
 The new board in 2025
 
-![](images/AECP2025_1.jpg)
-![](images/AECP2025_2.jpg)
-![](images/AECP2025_3.jpg)
+![](images/AECP2025-1.jpg)
+![](images/AECP2025-2.jpg)
+![](images/AECP2025-3.jpg)
 
 For the Gerber's file see the folder "aecp/source_kicad/gerber V4/"
 
