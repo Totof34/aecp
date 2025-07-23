@@ -13,6 +13,19 @@ http://www.audiyofan.org/forum/viewtopic.php?f=71&t=9221
 
 PCB & schema are designed with Kicad
 
+**********************************
+*A new version called V4 for 2025*
+**********************************
+
+The new board in 2025
+
+![](images/AECP2025_1.JPG)
+![](images/AECP2025_2.JPG)
+![](images/AECP2025_3.JPG)
+
+For the Gerber's file see the folder "aecp/source_kicad/gerber V4/"
+
+
 the new board uses a Atmega328 and usb link or a bluetooth module ( HC-05 or 06 )
 to transmit some data to the PC
 
