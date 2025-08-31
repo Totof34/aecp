@@ -25,6 +25,8 @@ The new board in 2025
 
 For the Gerber's file see the folder "aecp/source_kicad/gerber V4/"
 
+all PCB Gerber files and 3D printing files from version 2025 grouped in the folder "aecp/manufacturing_files"
+
 *******************************************************************
 
 the new board uses a Atmega328 and usb link or a bluetooth module ( HC-05 or 06 )
