@@ -24,12 +24,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.widget.Toast;
-import android.view.Gravity;
 import android.app.Activity;
+import processing.core.PApplet;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.graphics.Color;
+import android.widget.TextView;
+import android.view.Gravity;
 import android.view.WindowManager;
 import android.view.View;
 import android.os.*;
-import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -53,10 +57,10 @@ ControlP5 cp5;
 
 // DropDownList control => a.)displayFld b.)arrow c.)list
 
-
 Activity act;
-View decorView;
-int uiOptions;
+TextView msg;
+int msgId;
+String AlertMessage="";
 
 public BluetoothSocket scSocket;
 
@@ -397,7 +401,6 @@ int buffer_index;
 int counter;
 boolean stop_thread, plotting = false, init = true;
 
-
  void findPairedBluetoothDevices() {
  bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
  if (bluetoothAdapter == null) {
@@ -533,6 +536,8 @@ DeviceList deviceList;
   //  connectBluetooth();
     connectSelected = true;
     println("Connect selected.");
+    AlertMessage="Tente de se connecter";
+    dialogBox();
     connectThread = new ConnectThread(bluetoothAdapter.getRemoteDevice(deviceAddress[selectedDevice]));
     connectThread.run();
     println(deviceAddress[selectedDevice]);
@@ -1012,6 +1017,8 @@ class SendBtn {
       byte[] myByte = stringToBytesUTFCustom(letrToSend);
       sendReceiveBT.write(myByte);
       //print(myByte);
+      AlertMessage = letrToSend;
+      dialogBox2();
        for (int q = 0; q<myspeed.length; q++) {
         //println(myspeed [q]);
         if (letrToSend == "a" ||letrToSend == "b" ||letrToSend == "c" ||letrToSend == "d" ||letrToSend == "e" ){
@@ -2717,11 +2724,57 @@ class MyLocationListener implements LocationListener {
 }
 
 
-/* My ToastMaster function to display a messageBox on the screen */
-void ToastMaster(String textToDisplay) {
-  Toast myMessage = Toast.makeText(getActivity().getApplicationContext(), 
-    textToDisplay, 
-    Toast.LENGTH_SHORT);
-  myMessage.setGravity(Gravity.CENTER, 0, 0);
-  myMessage.show();
+void dialogBox() {
+
+act = this.getActivity();
+
+  final TextView msg = new TextView(act); 
+  msg.setBackgroundColor(Color.WHITE);
+  msg.setTextSize(24);
+  msg.setText(AlertMessage); 
+  msg.setGravity(Gravity.CENTER_HORIZONTAL); 
+  msg.setTextColor(Color.BLACK); 
+
+  act.runOnUiThread(new Runnable() {
+    public void run() {
+      AlertDialog.Builder builder = new AlertDialog.Builder(act);
+      builder.setView(msg);
+      builder.setTitle(" ");
+      builder.setPositiveButton("Ok", 
+        new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, 
+          int which) {
+        }
+      }
+      ).show();;  
+    }
+  }
+  );
+}
+void dialogBox2() {
+
+act = this.getActivity();
+
+  final TextView msg = new TextView(act); 
+  msg.setBackgroundColor(Color.WHITE);
+  msg.setTextSize(36);
+  msg.setText(AlertMessage); 
+  msg.setGravity(Gravity.CENTER_HORIZONTAL); 
+  msg.setTextColor(Color.RED); 
+
+  act.runOnUiThread(new Runnable() {
+    public void run() {
+      AlertDialog.Builder builder = new AlertDialog.Builder(act);
+      builder.setView(msg);
+      builder.setTitle("               Envoie la lettre");
+      builder.setPositiveButton("Ok", 
+        new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, 
+          int which) {
+        }
+      }
+      ).show();;  
+    }
+  }
+  );
 }
